@@ -1,0 +1,10 @@
+
+services:
+  debian:
+    image: debian:latest
+    container_name: debian
+    restart: always
+    tty: true
+    volumes:
+      - ./bin/MattDaemon:/root/MattDaemon
+
