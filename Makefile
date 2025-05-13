@@ -2,7 +2,7 @@
 
 NAME					=	./bin/MattDaemon
 
-SRCS					=	main.cpp Server.cpp utils.cpp
+SRCS					=	main.cpp Server.cpp utils.cpp Daemon.cpp
 
 SRCSFD					=	srcs/
 OBJSFD					=	objs/

@@ -1,16 +1,18 @@
 #include <iostream>
 #include "../includes/Server.hpp"
+#include "../includes/Daemon.hpp"
 
 
 int main() {
-	std::cout << "Hello, World!" << std::endl;
+	MD::Daemon daemon;
+	daemon.daemonize();
 	
 
-	MD::Server server("4242");
+	// MD::Server server("4242");
 
-	server.createNetwork();
-	server.loop();
-	server.terminateServer();
+	// server.createNetwork();
+	// server.loop();
+	// server.terminateServer();
 
 	return 0;
 }
