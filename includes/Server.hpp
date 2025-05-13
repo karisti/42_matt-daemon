@@ -24,7 +24,7 @@
 #define PRINT_DEBUG       1
 
 namespace MD
-{    
+{
 	class Server
 	{
 	public:
