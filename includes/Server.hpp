@@ -25,55 +25,55 @@
 
 namespace MD
 {    
-    class Server
-    {
-    public:
-        // typedef std::map<int, User>                              users_map;
-        // typedef std::vector<std::pair<users_map::iterator, std::string> >  user_map_iters_remove;
-    
-    private:
-        std::string                   ip;
-        int                           sSocket;
-        int                           epollFd;
-        std::string                   password;
-        // struct epoll_event            event;          // temporary for epoll_ctl
-        struct epoll_event            eventList[EPOLL_MAX_EVENTS];
-        // users_map                     users;
-        std::string                   hostname;
-        std::string                   creationTimestamp;
-    
-    public:
-        Server();
-        Server(std::string password);
-        Server(const Server &other);
-        ~Server();
-        Server &operator=(const Server &other);
-    
-        /* -- Getters -- */
-        std::string      getIp(void) const;
-        int              getSocket(void) const;
-        std::string      getPassword(void) const;
-        // users_map&       getUsers(void);
-        std::string      getHostname(void) const;
-    
-        /* -- Modifiers -- */
-        void             setHostname(std::string hostname);
-    
-        /* -- Member functions -- */
-        int              createNetwork();
-        int              loop(void);  // inside loop use epoll_wait(...)
-        // void             closeClient(User& user, std::string message);
-        void             terminateServer(void);
-        void             catchPing(void);
-        
-    private:
-        /* -- Member functions -- */
-        // void             removeUser(User& user);
-        int              saveIp(void);
-        // int              clientConnected(void);              // call epoll_ctl(ADD)
-        // void             clientDisconnected(int eventFd);    // call epoll_ctl(DEL)
-        // int              receiveMessage(int eventFd);
-        // void             registration(User& user, std::string password);
-        int              throwError(std::string message);
-    };
+	class Server
+	{
+	public:
+		// typedef std::map<int, User>                              users_map;
+		// typedef std::vector<std::pair<users_map::iterator, std::string> >  user_map_iters_remove;
+	
+	private:
+		std::string                   ip;
+		int                           sSocket;
+		int                           epollFd;
+		std::string                   password;
+		// struct epoll_event            event;          // temporary for epoll_ctl
+		struct epoll_event            eventList[EPOLL_MAX_EVENTS];
+		// users_map                     users;
+		std::string                   hostname;
+		std::string                   creationTimestamp;
+	
+	public:
+		Server();
+		Server(std::string password);
+		Server(const Server &other);
+		~Server();
+		Server &operator=(const Server &other);
+	
+		/* -- Getters -- */
+		std::string      getIp(void) const;
+		int              getSocket(void) const;
+		std::string      getPassword(void) const;
+		// users_map&       getUsers(void);
+		std::string      getHostname(void) const;
+	
+		/* -- Modifiers -- */
+		void             setHostname(std::string hostname);
+	
+		/* -- Member functions -- */
+		int              createNetwork();
+		int              loop(void);  // inside loop use epoll_wait(...)
+		// void             closeClient(User& user, std::string message);
+		void             terminateServer(void);
+		void             catchPing(void);
+		
+	private:
+		/* -- Member functions -- */
+		// void             removeUser(User& user);
+		int              saveIp(void);
+		// int              clientConnected(void);              // call epoll_ctl(ADD)
+		// void             clientDisconnected(int eventFd);    // call epoll_ctl(DEL)
+		// int              receiveMessage(int eventFd);
+		// void             registration(User& user, std::string password);
+		int              throwError(std::string message);
+	};
 }
