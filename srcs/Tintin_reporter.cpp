@@ -1,7 +1,15 @@
 #include "../includes/Tintin_reporter.hpp"
 
 
-MD::Tintin_reporter::Tintin_reporter(const char *log_path, const std::string &reporter)
+MD::Tintin_reporter::Tintin_reporter() {
+	std::cout << "Hello tintin..." << std::endl;
+}
+MD::Tintin_reporter::~Tintin_reporter() {
+	std::cout << "Chao tintin..." << std::endl;
+	close(this->fd);
+}
+
+void MD::Tintin_reporter::create(const char *log_path, const std::string &reporter)
 {
 	this->log_path = log_path;
 	this->reporter = reporter;
@@ -11,13 +19,6 @@ MD::Tintin_reporter::Tintin_reporter(const char *log_path, const std::string &re
 	this->openLogFile();
 	dup2(this->fd, STDOUT_FILENO);
 	dup2(this->fd, STDERR_FILENO);
-}
-MD::Tintin_reporter::Tintin_reporter() {
-	std::cout << "Hello tintin..." << std::endl;
-}
-MD::Tintin_reporter::~Tintin_reporter() {
-	std::cout << "Chao tintin..." << std::endl;
-	// close(this->fd);
 }
 
 void MD::Tintin_reporter::createLogFile()

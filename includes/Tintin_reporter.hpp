@@ -13,9 +13,8 @@ namespace MD
 	{
 		public:
 			Tintin_reporter();
-			Tintin_reporter(const char *log_path, const std::string &reporter);
 			~Tintin_reporter();
-
+			void create(const char *log_path, const std::string &reporter);
 			void log(const std::string &message, const std::string &level = "INFO");
 
 		private:

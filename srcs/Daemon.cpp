@@ -3,7 +3,7 @@
 
 MD::Daemon::Daemon()
 {
-	this->reporter = Tintin_reporter("matt_daemon.log", "Matt_daemon");
+	this->reporter.create("matt_daemon.log", "Matt_daemon");
 }
 
 MD::Daemon::~Daemon()
