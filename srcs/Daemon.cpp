@@ -3,6 +3,7 @@
 
 MD::Daemon::Daemon()
 {
+	this->lock();
 	this->reporter.create("matt_daemon.log", "Matt_daemon");
 }
 
@@ -31,7 +32,6 @@ void MD::Daemon::create()
 	
 	this->createFork();
 	this->signals();
-	this->lock();
 	this->run();
 
 	// umask(0);
@@ -46,12 +46,13 @@ void MD::Daemon::run()
 {
 	writeLog("Running daemon...");
 	// Child process
-	while (true)
+	while (!g_stopRequested)
 	{
 		// Daemon logic goes here
 		writeLog("Daemon is running...");
-		sleep(1);
+		sleep(1);		
 	}
+	writeLog("finishing, daemon with kill");
 }
 
 void MD::Daemon::createFork()
@@ -101,21 +102,23 @@ void MD::Daemon::signals()
 	signal(SIGHUP, signalHandler);
 	signal(SIGINT, signalHandler);
 	signal(SIGTERM, signalHandler);
-	signal(SIGKILL, signalHandler);
+	// signal(SIGKILL, signalHandler);
 }
 
 void MD::Daemon::signalHandler(int signum)
 {
 	std::cout << "Signal received: " << signum << std::endl;
 	
-	if (signum == SIGHUP || signum == SIGINT || signum == SIGTERM || signum == SIGKILL)
+	if (signum == SIGHUP)
 	{
 		std::cout << "Stopping daemon..." << std::endl;
 		const char *lock_path = "/var/lock/matt_daemon.lock";
 		std::remove(lock_path);
 		exit(EXIT_SUCCESS);
-	}
-	else
+	} else if (signum == SIGINT || signum == SIGTERM || signum == SIGKILL) {
+		std::cout << "Kill Signal recieved: " << signum << std::endl;
+		g_stopRequested = 1;
+	} else
 	{
 		std::cout << "Unknown signal received: " << signum << std::endl;
 	}

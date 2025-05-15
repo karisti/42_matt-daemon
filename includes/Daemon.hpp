@@ -10,9 +10,11 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <atomic>
+#include <csignal>
 #include "Tintin_reporter.hpp"
 
-
+static volatile std::sig_atomic_t g_stopRequested = 0;
 namespace MD
 {
 	class Daemon
@@ -25,6 +27,7 @@ namespace MD
 		void daemonize();
 		
 	private:
+
 		std::string creationTimestamp;
 		Tintin_reporter reporter;
 		

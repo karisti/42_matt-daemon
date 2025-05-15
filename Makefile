@@ -10,7 +10,7 @@ HDR_INC					=	-I./includes
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # Compilation
-CFLAGS					=	-Wall -Wextra -Werror -std=c++98
+CFLAGS					=	-Wall -Wextra -Werror -std=c++17
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # Colors
