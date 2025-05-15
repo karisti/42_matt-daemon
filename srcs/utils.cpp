@@ -62,16 +62,6 @@ std::string		pingGenerator(const int &size) {
 	return randstr;
 }
 
-std::string		getCurrentTimestamp()
-{
-	time_t now = time(0);
-	struct tm* timeinfo = localtime(&now);
-	char buffer[80];
-	
-	strftime(buffer, 80, "%H:%M:%S %b %d %Y", timeinfo);
-	return std::string(buffer);
-}
-
 bool			isNumber(std::string str)
 {
 	std::string::iterator it = str.begin();

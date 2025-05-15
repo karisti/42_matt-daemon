@@ -1,10 +1,9 @@
 #include "../includes/Daemon.hpp"
 #include "../includes/utils.hpp"
 
-
 MD::Daemon::Daemon()
 {
-	this->creationTimestamp = getCurrentTimestamp();
+	this->reporter = Tintin_reporter("matt_daemon.log", "Matt_daemon");
 }
 
 MD::Daemon::~Daemon()
@@ -21,77 +20,131 @@ void MD::Daemon::daemonize()
 
 void MD::Daemon::create()
 {
-	writeLog("Creating daemon...");
+	this->createFork();
 	
-	pid_t pid, sid;
-
-	pid = fork();
-	if (pid < 0)
-	{
-		std::cerr << "Fork failed" << std::endl;
-		exit(EXIT_FAILURE);
-	}
-	if (pid > 0)
-	{
-		std::cout << "Daemon PID: " << pid << std::endl;
-		exit(EXIT_SUCCESS);
-	}
-	sid = setsid();
+	pid_t sid = setsid(); // Create a new session
 	if (sid < 0)
 	{
 		std::cerr << "Failed to create new session" << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	if (chdir("/") < 0)
-	{
-		std::cerr << "Failed to change directory" << std::endl;
-		exit(EXIT_FAILURE);
-	}
-	umask(0);
-	close(STDIN_FILENO);
-	// close(STDOUT_FILENO);
-	close(STDERR_FILENO);
+	
+	this->createFork();
+	this->signals();
+	this->lock();
+	this->run();
 
-	writeLog("Daemon created successfully");
+	// umask(0);
+	// close(STDIN_FILENO);
+	// // close(STDOUT_FILENO);
+	// close(STDERR_FILENO);
+
+	// writeLog("Daemon created successfully");
 }
 
 void MD::Daemon::run()
 {
 	writeLog("Running daemon...");
-	// TODO: Implement the daemon running logic
+	// Child process
+	while (true)
+	{
+		// Daemon logic goes here
+		writeLog("Daemon is running...");
+		sleep(1);
+	}
+}
+
+void MD::Daemon::createFork()
+{
+	pid_t child_pid;
+
+	child_pid = fork();
+	if (child_pid < 0) // Fork failed
+	{
+		std::cerr << "Fork failed" << std::endl;
+		exit(EXIT_FAILURE);
+	}
+	if (child_pid > 0) // Parent process
+	{
+		std::cout << "Daemon PID: " << child_pid << std::endl;
+		exit(EXIT_SUCCESS);
+	}
+	
+	return;
 }
 
 void MD::Daemon::stop()
 {
 	writeLog("Stopping daemon...");
 	// TODO: Implement the daemon stopping logic
+
+	// delete /var/lock/matt_daemon.lock
+	const char *lock_path = "/var/lock/matt_daemon.lock";
+	std::remove(lock_path);
 }
 
 void MD::Daemon::remove()
 {
 	writeLog("Removing daemon...");
+	// int cout_fd = open(STDOUT_FILENO, O_RDONLY);
+	// close(cout_fd)
 	// TODO: Implement the daemon removal logic
 }
 
 void MD::Daemon::writeLog(const std::string &message)
 {
-	std::cout << "Writing log: " << message << std::endl;
-	
-	int fd = open("matt_daemon.log", O_RDWR | O_CREAT | O_APPEND, 0644);
-	if (fd < 0)
-	{
-		std::cerr << "Failed to open matt_daemon.log" << std::endl;
-		exit(EXIT_FAILURE);
-	}
+	this->reporter.log(message);
+}
 
-	write(fd, message.c_str(), message.size());
-	write(fd, "\n", 1);
+void MD::Daemon::signals()
+{
+	signal(SIGHUP, signalHandler);
+	signal(SIGINT, signalHandler);
+	signal(SIGTERM, signalHandler);
+	signal(SIGKILL, signalHandler);
 }
 
 void MD::Daemon::signalHandler(int signum)
 {
 	std::cout << "Signal received: " << signum << std::endl;
-	// TODO: Implement the signal handling logic
+	
+	if (signum == SIGHUP || signum == SIGINT || signum == SIGTERM || signum == SIGKILL)
+	{
+		std::cout << "Stopping daemon..." << std::endl;
+		const char *lock_path = "/var/lock/matt_daemon.lock";
+		std::remove(lock_path);
+		exit(EXIT_SUCCESS);
+	}
+	else
+	{
+		std::cout << "Unknown signal received: " << signum << std::endl;
+	}
 }
 
 
+void MD::Daemon::lock() 
+{
+	// if (chdir("/") < 0)
+	// {
+	// 	std::cerr << "Failed to change directory" << std::endl;
+	// 	exit(EXIT_FAILURE);
+	// }
+	
+	const char *lock_path = "/var/lock/matt_daemon.lock";
+	FILE *lock_file = fopen(lock_path, "a");
+
+	writeLog("Locking the file...");
+
+	if (lock_file == NULL) {
+		std::cout << "There was an error creating the file " << std::endl;
+	}
+
+	fprintf(lock_file, "%d", getpid());
+	fflush(lock_file);
+
+	if (flock(fileno(lock_file), LOCK_EX) == 0) {
+		std::cout << "The file was locked " << std::endl;
+	} else {
+		std::cout << "The file was not locked " << std::endl;
+	}
+}

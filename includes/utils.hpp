@@ -14,6 +14,5 @@ std::vector<std::string>	splitString(std::string str, std::string delim, int cou
 void						catchSignal(void);
 void						sig_handle(int sig);
 std::string					pingGenerator(const int &size);
-std::string					getCurrentTimestamp();
 bool						isNumber(std::string str);
 void						printStrVector(std::string name, std::vector<std::string> strs);
