@@ -35,6 +35,7 @@ void MD::Daemon::daemonize()
 
 void MD::Daemon::create()
 {
+	umask(0);
 	this->reporter.create("/var/log/matt_daemon.log", "Matt_daemon");
 
 	this->createFork();
@@ -49,13 +50,6 @@ void MD::Daemon::create()
 	this->createFork();
 	this->lock();
 	this->signals();
-
-	// umask(0);
-	// close(STDIN_FILENO);
-	// // close(STDOUT_FILENO);
-	// close(STDERR_FILENO);
-
-	// writeLog("Daemon created successfully");
 }
 
 void MD::Daemon::run()
@@ -140,14 +134,13 @@ void MD::Daemon::signalHandler(int signum)
 	}
 }
 
-
-void MD::Daemon::lock() 
+void MD::Daemon::lock()
 {
-	// if (chdir("/") < 0)
-	// {
-	// 	std::cerr << "Failed to change directory" << std::endl;
-	// 	exit(EXIT_FAILURE);
-	// }
+	if (chdir("/") < 0)
+	{
+		std::cerr << "Failed to change directory" << std::endl;
+		exit(EXIT_FAILURE);
+	}
 	
 	const char *lock_path = "/var/lock/matt_daemon.lock";
 	FILE *lock_file = fopen(lock_path, "a");
