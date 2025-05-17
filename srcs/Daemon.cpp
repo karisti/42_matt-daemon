@@ -3,14 +3,28 @@
 
 MD::Daemon::Daemon()
 {
-	this->lock();
-	this->reporter.create("matt_daemon.log", "Matt_daemon");
+	this->initialChecks();
 }
 
 MD::Daemon::~Daemon()
 {
 	this->stop();
 	this->remove();
+}
+
+void MD::Daemon::initialChecks()
+{
+	if (geteuid() != 0) {
+		std::cerr << "Este programa debe ejecutarse como root." << std::endl;
+		exit(EXIT_FAILURE);
+	}
+
+	// Check if the lock file already exists
+	const char *lock_path = "/var/lock/matt_daemon.lock";
+	if (access(lock_path, F_OK) == 0) {
+		std::cerr << "Daemon is already running." << std::endl;
+		exit(EXIT_FAILURE);
+	}
 }
 
 void MD::Daemon::daemonize()
@@ -21,6 +35,8 @@ void MD::Daemon::daemonize()
 
 void MD::Daemon::create()
 {
+	this->reporter.create("/var/log/matt_daemon.log", "Matt_daemon");
+
 	this->createFork();
 	
 	pid_t sid = setsid(); // Create a new session
@@ -31,8 +47,8 @@ void MD::Daemon::create()
 	}
 	
 	this->createFork();
+	this->lock();
 	this->signals();
-	this->run();
 
 	// umask(0);
 	// close(STDIN_FILENO);

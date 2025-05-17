@@ -31,6 +31,7 @@ namespace MD
 		std::string creationTimestamp;
 		Tintin_reporter reporter;
 		
+		void initialChecks();
 		void create();
 		void createFork();
 		void lock();
