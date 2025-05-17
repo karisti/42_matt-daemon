@@ -27,24 +27,20 @@ namespace MD
 {
 	class Server
 	{
-	public:
-		// typedef std::map<int, User>                              users_map;
-		// typedef std::vector<std::pair<users_map::iterator, std::string> >  user_map_iters_remove;
-	
+
 	private:
 		std::string                   ip;
 		int                           sSocket;
 		int                           epollFd;
-		std::string                   password;
 		// struct epoll_event            event;          // temporary for epoll_ctl
 		struct epoll_event            eventList[EPOLL_MAX_EVENTS];
-		// users_map                     users;
 		std::string                   hostname;
 		std::string                   creationTimestamp;
+		const char                    *port;
 	
 	public:
 		Server();
-		Server(std::string password);
+		Server(const char *port);
 		Server(const Server &other);
 		~Server();
 		Server &operator=(const Server &other);
@@ -52,8 +48,6 @@ namespace MD
 		/* -- Getters -- */
 		std::string      getIp(void) const;
 		int              getSocket(void) const;
-		std::string      getPassword(void) const;
-		// users_map&       getUsers(void);
 		std::string      getHostname(void) const;
 	
 		/* -- Modifiers -- */

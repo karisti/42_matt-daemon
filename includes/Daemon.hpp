@@ -13,6 +13,7 @@
 #include <atomic>
 #include <csignal>
 #include "Tintin_reporter.hpp"
+#include "../includes/Server.hpp"
 
 static volatile std::sig_atomic_t g_stopRequested = 0;
 namespace MD

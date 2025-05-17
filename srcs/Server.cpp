@@ -2,11 +2,7 @@
 
 MD::Server::Server() {}
 
-MD::Server::Server(std::string password)
-{
-	this->password = password;
-	// this->creationTimestamp = getCurrentTimestamp();
-}
+MD::Server::Server(const char *port): port(port) {}
 
 MD::Server::Server(const MD::Server &other) { *this = other; }
 
@@ -19,9 +15,8 @@ MD::Server &MD::Server::operator=(const MD::Server &other)
 		this->ip = other.ip;
 		this->sSocket = other.sSocket;
 		this->epollFd = other.epollFd;
-		this->password = other.password;
-		// this->users = other.users;
 		this->hostname = other.hostname;
+		this->port = other.port;
 	}
 
 	return *this;
@@ -30,8 +25,6 @@ MD::Server &MD::Server::operator=(const MD::Server &other)
 /* -- Getters -- */
 std::string MD::Server::getIp(void) const { return this->ip; }
 int MD::Server::getSocket(void) const { return this->sSocket; }
-std::string MD::Server::getPassword(void) const { return this->password; }
-// MD::Server::users_map &MD::Server::getUsers(void) { return this->users; }
 std::string MD::Server::getHostname(void) const { return this->hostname; }
 
 /* -- Modifiers -- */
@@ -48,7 +41,7 @@ int MD::Server::createNetwork()
 	/** Bind the Socket to any free IP / Port **/
 	sockaddr_in hint;
 	hint.sin_family = AF_INET;			 // IPv4 type
-	hint.sin_port = htons(atoi("4242")); // Little Endian (for bigger numbers) | Host To Network Short
+	hint.sin_port = htons(atoi(this->port)); // Little Endian (for bigger numbers) | Host To Network Short
 	inet_pton(AF_INET, "0.0.0.0", &hint.sin_addr);
 	int yes = 1;
 
@@ -80,6 +73,7 @@ int MD::Server::createNetwork()
 		return -1;
 
 	std::cout << "--- IP: " << this->ip << " ---" << std::endl;
+	std::cout << "--- Port: " << this->port << " ---" << std::endl;
 
 	return 0;
 }
@@ -109,21 +103,21 @@ int MD::Server::loop(void)
 		}
 
 		/** Kqueue events loop **/
-		// for (int i = 0; i < newEvents; i++)
-		// {
-		// 	int eventFd = this->eventList[i].data.fd;
+		for (int i = 0; i < newEvents; i++)
+		{
+			int eventFd = this->eventList[i].data.fd;
 
-		// 	/** Client disconnected **/
-		// 	if (this->eventList[i].events & (EPOLLHUP | EPOLLERR | EPOLLRDHUP))
-		// 		clientDisconnected(eventFd);
-		// 	/** New client connected **/
-		// 	else if (eventFd == getSocket())
-		// 		clientConnected();
-		// 	/** New message from client **/
-		// 	else if (this->eventList[i].events & EPOLLIN)
-		// 		receiveMessage(eventFd);
-		// }
-		catchPing();
+			/** Client disconnected **/
+			if (this->eventList[i].events & (EPOLLHUP | EPOLLERR | EPOLLRDHUP))
+				clientDisconnected(eventFd);
+			/** New client connected **/
+			else if (eventFd == getSocket())
+				clientConnected();
+			/** New message from client **/
+			else if (this->eventList[i].events & EPOLLIN)
+				receiveMessage(eventFd);
+		}
+		// catchPing();
 	}
 	return 0;
 }
@@ -200,21 +194,21 @@ void MD::Server::terminateServer(void)
 		std::cout << "Server (" << getSocket() << ") closed" << std::endl;
 }
 
-// int MD::Server::clientConnected(void)
-// {
-// 	MD::User user;
+int MD::Server::clientConnected(void)
+{
+	MD::User user;
 
-// 	user.startListeningSocket(this->sSocket);
+	user.startListeningSocket(this->sSocket);
 
-// 	struct epoll_event ev;
-// 	ev.events = EPOLLIN;
-// 	ev.data.fd = user.getSocket();
-// 	if (epoll_ctl(this->epollFd, EPOLL_CTL_ADD, user.getSocket(), &ev) == -1)
-// 		return throwError("epoll_ctl add client socket");
+	struct epoll_event ev;
+	ev.events = EPOLLIN;
+	ev.data.fd = user.getSocket();
+	if (epoll_ctl(this->epollFd, EPOLL_CTL_ADD, user.getSocket(), &ev) == -1)
+		return throwError("epoll_ctl add client socket");
 
-// 	this->users[user.getSocket()] = user;
-// 	return 0;
-// }
+	this->users[user.getSocket()] = user;
+	return 0;
+}
 
 // void MD::Server::clientDisconnected(int eventFd)
 // {

@@ -54,14 +54,18 @@ void MD::Daemon::create()
 
 void MD::Daemon::run()
 {
+	MD::Server server("4242");
+
 	writeLog("Running daemon...");
 	// Child process
-	while (!g_stopRequested)
-	{
+	// while (!g_stopRequested)
+	// {
 		// Daemon logic goes here
 		writeLog("Daemon is running...");
-		sleep(1);		
-	}
+		server.createNetwork();
+		server.loop();
+	// }
+	// server.terminateServer();
 	writeLog("finishing, daemon with kill");
 }
 
