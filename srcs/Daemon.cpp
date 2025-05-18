@@ -111,13 +111,7 @@ void MD::Daemon::writeLog(const std::string &message)
 	this->reporter.log(message);
 }
 
-void MD::Daemon::signals()
-{
-	signal(SIGHUP, signalHandler);
-	signal(SIGINT, signalHandler);
-	signal(SIGTERM, signalHandler);
-	// signal(SIGKILL, signalHandler);
-}
+bool g_stopRequested = false;
 
 void MD::Daemon::signalHandler(int signum)
 {
@@ -131,11 +125,19 @@ void MD::Daemon::signalHandler(int signum)
 		exit(EXIT_SUCCESS);
 	} else if (signum == SIGINT || signum == SIGTERM || signum == SIGKILL) {
 		std::cout << "Kill Signal recieved: " << signum << std::endl;
-		g_stopRequested = 1;
+		g_stopRequested = true;
 	} else
 	{
 		std::cout << "Unknown signal received: " << signum << std::endl;
 	}
+}
+
+void MD::Daemon::signals()
+{
+	signal(SIGHUP, signalHandler);
+	signal(SIGINT, signalHandler);
+	signal(SIGTERM, signalHandler);
+	// signal(SIGKILL, signalHandler);
 }
 
 void MD::Daemon::lock()

@@ -8,6 +8,7 @@
 
 
 extern bool socketKiller;
+extern bool g_stopRequested;
 
 
 std::vector<std::string>	splitString(std::string str, std::string delim, int count = -1);
