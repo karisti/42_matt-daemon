@@ -88,20 +88,30 @@ int MD::Server::loop(void)
 		}
 
 		/** Kqueue events loop **/
-		// for (int i = 0; i < newEvents; i++)
-		// {
-		// 	int eventFd = this->eventList[i].data.fd;
+		for (int i = 0; i < newEvents; i++)
+		{
+			int eventFd = this->eventList[i].data.fd;
 
-		// 	/** Client disconnected **/
-		// 	if (this->eventList[i].events & (EPOLLHUP | EPOLLERR | EPOLLRDHUP))
-		// 		clientDisconnected(eventFd);
-		// 	/** New client connected **/
-		// 	else if (eventFd == getSocket())
-		// 		clientConnected();
-		// 	/** New message from client **/
-		// 	else if (this->eventList[i].events & EPOLLIN)
-		// 		receiveMessage(eventFd);
-		// }
+			/** Client disconnected **/
+			if (this->eventList[i].events & (EPOLLHUP | EPOLLERR | EPOLLRDHUP))
+			{
+				std::cout << "Client disconnected: " << eventFd << std::endl;
+				clientDisconnected(eventFd);
+				exit(1);
+			}
+			/** New client connected **/
+			else if (eventFd == getSocket())
+			{
+				std::cout << "New client connected: " << eventFd << std::endl;
+				clientConnected();
+			}
+			/** New message from client **/
+			else if (this->eventList[i].events & EPOLLIN)
+			{
+				std::cout << "New message from client: " << eventFd << std::endl;
+				receiveMessage(eventFd);
+			}
+		}
 		// catchPing();
 	}
 	return 0;
@@ -137,4 +147,93 @@ int		MD::Server::throwError(std::string message)
 {
 	perror(message.c_str());
 	return -1;
+}
+
+
+int MD::Server::clientConnected(void)
+{
+	MD::Client client;
+
+	client.startListeningSocket(this->sSocket);
+
+	struct epoll_event ev;
+	ev.events = EPOLLIN;
+	ev.data.fd = client.getSocket();
+	if (epoll_ctl(this->epollFd, EPOLL_CTL_ADD, client.getSocket(), &ev) == -1)
+		return throwError("epoll_ctl add client socket");
+
+	this->clients[client.getSocket()] = client;
+	return 0;
+}
+
+void	MD::Server::clientDisconnected(int eventFd)
+{
+	MD::Server::clients_map::iterator clientIt = this->clients.find(eventFd);
+	if (clientIt == this->clients.end())
+		return ;
+
+	closeClient(clientIt->second);
+}
+
+void	MD::Server::closeClient(MD::Client& client)
+{
+	/** Close client socket **/
+	if (close(client.getSocket()) == -1)
+		throwError("Client close error");
+	else
+		std::cout << "Client (" << client.getSocket() << ") closed" << std::endl;
+
+	this->clients.erase(client.getSocket());
+}
+
+int MD::Server::receiveMessage(int eventFd)
+{
+	char buf[4096];
+	int bytesRec;
+
+	memset(buf, 0, 4096);
+
+	/** Receive data **/
+	if ((bytesRec = recv(eventFd, buf, 4096, 0)) == -1)
+	{
+		std::cout << "Error in recv(). Quitting" << std::endl;
+		return -1;
+	}
+
+	MD::Server::clients_map::iterator found = this->clients.find(eventFd);
+	if (found == this->clients.end())
+		return -1;
+
+	// MD::Client &client = found->second;
+
+	/** Manage client buffer and split commands **/
+	std::string message(buf);
+	message.erase(remove(message.begin(), message.end(), '\n'), message.end());
+
+	std::cout << "Message: '" << message << "'" << std::endl;
+
+	if (message == "quit")
+	{
+		closeClient(found->second);
+	}
+
+	return 0;
+}
+
+void MD::Server::terminateServer(void)
+{
+	/** Close client sockets **/
+	for (MD::Server::clients_map::iterator clientIt = this->clients.begin(); clientIt != this->clients.end(); ++clientIt)
+	{
+		if (close(clientIt->second.getSocket()) == -1)
+			throwError("Client close error");
+		else
+			std::cout << "Client (" << clientIt->second.getSocket() << ") closed" << std::endl;
+	}
+
+	/** Close server socket **/
+	if (close(getSocket()) == -1)
+		throwError("Server close error");
+	else
+		std::cout << "Server (" << getSocket() << ") closed" << std::endl;
 }
