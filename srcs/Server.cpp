@@ -97,7 +97,6 @@ int MD::Server::loop(void)
 			{
 				std::cout << "Client disconnected: " << eventFd << std::endl;
 				clientDisconnected(eventFd);
-				exit(1);
 			}
 			/** New client connected **/
 			else if (eventFd == getSocket())
@@ -112,7 +111,6 @@ int MD::Server::loop(void)
 				receiveMessage(eventFd);
 			}
 		}
-		// catchPing();
 	}
 	return 0;
 }
@@ -204,18 +202,19 @@ int MD::Server::receiveMessage(int eventFd)
 	if (found == this->clients.end())
 		return -1;
 
-	// MD::Client &client = found->second;
+	MD::Client &client = found->second;
 
 	/** Manage client buffer and split commands **/
 	std::string message(buf);
 	message.erase(remove(message.begin(), message.end(), '\n'), message.end());
 
-	std::cout << "Message: '" << message << "'" << std::endl;
-
-	if (message == "quit")
+	// Manage connection close
+	if (message == "quit" || bytesRec == 0)
 	{
-		closeClient(found->second);
+		closeClient(client);
 	}
+
+	std::cout << "Message: '" << message << "'" << std::endl;
 
 	return 0;
 }
