@@ -101,7 +101,7 @@ int MD::Server::loop(void)
 			/** New client connected **/
 			else if (eventFd == getSocket())
 			{
-				std::cout << "New client connected: " << eventFd << std::endl;
+				std::cout << "New client connecting: " << eventFd << std::endl;
 				clientConnected();
 			}
 			/** New message from client **/
@@ -152,7 +152,13 @@ int MD::Server::clientConnected(void)
 {
 	MD::Client client;
 
-	client.startListeningSocket(this->sSocket);
+	bool maxClientsReached = this->clients.size() >= MAX_CLIENTS;
+	client.startListeningSocket(this->sSocket, maxClientsReached);
+	if (maxClientsReached)
+	{
+		closeClient(client);
+		return -1;
+	}
 
 	struct epoll_event ev;
 	ev.events = EPOLLIN;

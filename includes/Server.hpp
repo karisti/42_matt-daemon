@@ -16,7 +16,8 @@
 #include "Client.hpp"
 
 #define EPOLL_TIMEOUT     3000   // ms for epoll_wait
-#define EPOLL_MAX_EVENTS  3
+#define EPOLL_MAX_EVENTS  64
+#define MAX_CLIENTS       3
 
 namespace MD
 {

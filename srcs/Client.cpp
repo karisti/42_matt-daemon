@@ -21,7 +21,7 @@ MD::Client& MD::Client::operator=(const MD::Client &other)
 	return *this;
 }
 
-void			MD::Client::startListeningSocket(int serverSocket)
+void			MD::Client::startListeningSocket(int serverSocket, bool maxClientsReached)
 {
 	char host[NI_MAXHOST];
 	char service[NI_MAXSERV];
@@ -35,6 +35,12 @@ void			MD::Client::startListeningSocket(int serverSocket)
 	if (this->socket == -1)
 	{
 		perror("Accept socket error");
+		return ;
+	}
+
+	if (maxClientsReached)
+	{
+		std::cout << "Max clients reached" << std::endl;
 		return ;
 	}
 

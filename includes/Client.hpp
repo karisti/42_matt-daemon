@@ -26,7 +26,7 @@ namespace MD
 
 		public:
 			/* -- Member functions -- */
-			void			startListeningSocket(int serverSocket);
+			void			startListeningSocket(int serverSocket, bool maxClientsReached);
 			int				getSocket(void) const;
 			std::string		getHostname(void) const;
 
