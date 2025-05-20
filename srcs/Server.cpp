@@ -217,7 +217,13 @@ int MD::Server::receiveMessage(int eventFd)
 	message.erase(remove(message.begin(), message.end(), '\n'), message.end());
 
 	// Manage connection close
-	if (message == "quit" || bytesRec == 0)
+	if (bytesRec == 0)
+	{
+		this->reporter.log("Client (" + std::to_string(client.getSocket()) + ") disconnected", "LOG");
+		closeClient(client);
+		return 0;
+	}
+	if (message == "quit")
 	{
 		this->reporter.log("Request quit from client (" + std::to_string(client.getSocket()) + ").", "INFO");
 		closeClient(client);
