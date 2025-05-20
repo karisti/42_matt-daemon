@@ -147,7 +147,6 @@ int		MD::Server::throwError(std::string message)
 	return -1;
 }
 
-
 int MD::Server::clientConnected(void)
 {
 	MD::Client client;
