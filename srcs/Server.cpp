@@ -1,6 +1,8 @@
 #include "../includes/Server.hpp"
 
-MD::Server::Server() {}
+MD::Server::Server() {
+	reporter.create("/var/log/matt_daemon.log", "Matt_daemon");
+}
 
 MD::Server::Server(const char *port): port(port) {}
 
@@ -21,6 +23,7 @@ MD::Server &MD::Server::operator=(const MD::Server &other)
 std::string		MD::Server::getIp(void) const { return this->ip; }
 int				MD::Server::getSocket(void) const { return this->sSocket; }
 std::string		MD::Server::getHostname(void) const { return this->hostname; }
+std::string		MD::Server::getPort(void) const { return std::string(this->port); }
 
 int MD::Server::createNetwork()
 {
@@ -61,8 +64,8 @@ int MD::Server::createNetwork()
 	if (saveIp() == -1)
 		return -1;
 
-	std::cout << "--- IP: " << this->ip << " ---" << std::endl;
-	std::cout << "--- Port: " << this->port << " ---" << std::endl;
+	// std::cout << "--- IP: " << this->ip << " ---" << std::endl;
+	// std::cout << "--- Port: " << this->port << " ---" << std::endl;
 
 	return 0;
 }
@@ -95,19 +98,19 @@ int MD::Server::loop(void)
 			/** Client disconnected **/
 			if (this->eventList[i].events & (EPOLLHUP | EPOLLERR | EPOLLRDHUP))
 			{
-				std::cout << "Client disconnected: " << eventFd << std::endl;
+				this->reporter.log("Client disconnected: " + std::to_string(eventFd), "LOG");
 				clientDisconnected(eventFd);
 			}
 			/** New client connected **/
 			else if (eventFd == getSocket())
 			{
-				std::cout << "New client connecting: " << eventFd << std::endl;
+				this->reporter.log("New client connecting: " + std::to_string(eventFd), "LOG");
 				clientConnected();
 			}
 			/** New message from client **/
 			else if (this->eventList[i].events & EPOLLIN)
 			{
-				std::cout << "New message from client: " << eventFd << std::endl;
+				// this->reporter.log("New message from client: " + std::to_string(eventFd), "LOG");
 				receiveMessage(eventFd);
 			}
 		}
@@ -133,7 +136,7 @@ int MD::Server::saveIp(void)
 	{
 		this->ip = inet_ntoa(*((struct in_addr *)hostEntry->h_addr_list[0]));
 
-		std::cout << ">> Hostname: " << hostEntry->h_name << std::endl;
+		// std::cout << ">> Hostname: " << hostEntry->h_name << std::endl;
 		std::string s(hostEntry->h_name);
 		this->hostname = s;
 	}
@@ -184,7 +187,7 @@ void	MD::Server::closeClient(MD::Client& client)
 	if (close(client.getSocket()) == -1)
 		throwError("Client close error");
 	else
-		std::cout << "Client (" << client.getSocket() << ") closed" << std::endl;
+		this->reporter.log("Client (" + std::to_string(client.getSocket()) + ") closed", "LOG");
 
 	this->clients.erase(client.getSocket());
 }
@@ -199,7 +202,7 @@ int MD::Server::receiveMessage(int eventFd)
 	/** Receive data **/
 	if ((bytesRec = recv(eventFd, buf, 4096, 0)) == -1)
 	{
-		std::cout << "Error in recv(). Quitting" << std::endl;
+		this->reporter.log("Error in recv(). Quitting", "ERROR");
 		return -1;
 	}
 
@@ -216,10 +219,13 @@ int MD::Server::receiveMessage(int eventFd)
 	// Manage connection close
 	if (message == "quit" || bytesRec == 0)
 	{
+		this->reporter.log("Request quit from client (" + std::to_string(client.getSocket()) + ").", "INFO");
 		closeClient(client);
+		terminateServer();
+		return 0;
 	}
 
-	std::cout << "Message: '" << message << "'" << std::endl;
+	this->reporter.log("User (" + std::to_string(client.getSocket()) + ") input: " + message, "LOG");
 
 	return 0;
 }
@@ -232,12 +238,12 @@ void MD::Server::terminateServer(void)
 		if (close(clientIt->second.getSocket()) == -1)
 			throwError("Client close error");
 		else
-			std::cout << "Client (" << clientIt->second.getSocket() << ") closed" << std::endl;
+			this->reporter.log("Client (" + std::to_string(clientIt->second.getSocket()) + ") closed", "LOG");
 	}
 
 	/** Close server socket **/
 	if (close(getSocket()) == -1)
 		throwError("Server close error");
 	else
-		std::cout << "Server (" << getSocket() << ") closed" << std::endl;
+		this->reporter.log("Server (" + std::to_string(getSocket()) + ") closed", "LOG");
 }

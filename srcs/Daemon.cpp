@@ -14,6 +14,7 @@ MD::Daemon::~Daemon()
 
 void MD::Daemon::initialChecks()
 {
+	// Check if the program is running as root
 	if (geteuid() != 0)
 	{
 		std::cerr << "Este programa debe ejecutarse como root." << std::endl;
@@ -42,7 +43,8 @@ void MD::Daemon::create()
 
 	this->createFork();
 
-	pid_t sid = setsid(); // Create a new session
+	 // Create a new session
+	pid_t sid = setsid();
 	if (sid < 0)
 	{
 		std::cerr << "Failed to create new session" << std::endl;
@@ -51,22 +53,27 @@ void MD::Daemon::create()
 
 	this->createFork();
 	this->lock();
-	this->signals();
+
+	this->reporter.log("Daemon started with PID: " + std::to_string(getpid()) + ".");
+
+	this->configSignals();
 }
 
 void MD::Daemon::run()
 {
+	// Daemon logic goes here
+	this->reporter.log("Creating server...");
+
 	MD::Server server("4242");
 
-	writeLog("Running daemon...");
-
-	// Daemon logic goes here
-	writeLog("Daemon is running...");
 	server.createNetwork();
+
+	this->reporter.log("Server created at port: " + std::string(server.getPort()));
+
 	server.loop();
 	server.terminateServer();
 
-	writeLog("finishing, daemon with kill");
+	this->reporter.log("Quitting.");
 }
 
 void MD::Daemon::createFork()
@@ -81,7 +88,6 @@ void MD::Daemon::createFork()
 	}
 	if (child_pid > 0) // Parent process
 	{
-		std::cout << "Daemon PID: " << child_pid << std::endl;
 		exit(EXIT_SUCCESS);
 	}
 
@@ -90,8 +96,7 @@ void MD::Daemon::createFork()
 
 void MD::Daemon::stop()
 {
-	writeLog("Stopping daemon...");
-	// TODO: Implement the daemon stopping logic
+	this->reporter.log("Stopping daemon.");
 
 	// delete /var/lock/matt_daemon.lock
 	const char *lock_path = "/var/lock/matt_daemon.lock";
@@ -100,43 +105,40 @@ void MD::Daemon::stop()
 
 void MD::Daemon::remove()
 {
-	writeLog("Removing daemon...");
+	this->reporter.log("Removing daemon.");
 	// int cout_fd = open(STDOUT_FILENO, O_RDONLY);
 	// close(cout_fd)
 	// TODO: Implement the daemon removal logic
-}
-
-void MD::Daemon::writeLog(const std::string &message)
-{
-	this->reporter.log(message);
 }
 
 bool g_stopRequested = false;
 
 void MD::Daemon::signalHandler(int signum)
 {
-	std::cout << "Signal received: " << signum << std::endl;
+	Tintin_reporter&		reporter = MD::Tintin_reporter::getInstance();
+	reporter.create("/var/log/matt_daemon.log", "Matt_daemon");
 
 	if (signum == SIGHUP)
 	{
-		std::cout << "Stopping daemon..." << std::endl;
+		reporter.log("SIGHUP received, reloading configuration", "INFO");
+		// std::cout << "Stopping daemon..." << std::endl;
 		const char *lock_path = "/var/lock/matt_daemon.lock";
 		std::remove(lock_path);
 		exit(EXIT_SUCCESS);
 	}
 	else if (signum == SIGINT || signum == SIGTERM || signum == SIGKILL)
 	{
-		std::cout << "Kill Signal recieved: " << signum << std::endl;
-
+		reporter.log("SIGINT/SIGTERM/SIGKILL received, stopping daemon", "INFO");
+		// std::cout << "Kill Signal recieved: " << signum << std::endl;
 		g_stopRequested = true;
 	}
 	else
 	{
-		std::cout << "Unknown signal received: " << signum << std::endl;
+		reporter.log("Unknown signal received: " + std::to_string(signum), "ERROR");
 	}
 }
 
-void MD::Daemon::signals()
+void MD::Daemon::configSignals()
 {
 	signal(SIGHUP, signalHandler);
 	signal(SIGINT, signalHandler);
@@ -154,23 +156,18 @@ void MD::Daemon::lock()
 
 	const char *lock_path = "/var/lock/matt_daemon.lock";
 	FILE *lock_file = fopen(lock_path, "a");
-
-	writeLog("Locking the file...");
-
 	if (lock_file == NULL)
 	{
-		std::cout << "There was an error creating the file " << std::endl;
+		this->reporter.log("Failed to create lock file: '" + std::string(lock_path) + "'", "ERROR");
 	}
 
 	fprintf(lock_file, "%d", getpid());
 	fflush(lock_file);
 
-	if (flock(fileno(lock_file), LOCK_EX) == 0)
+	if (flock(fileno(lock_file), LOCK_EX) < 0)
 	{
-		std::cout << "The file was locked " << std::endl;
-	}
-	else
-	{
-		std::cout << "The file was not locked " << std::endl;
+		this->reporter.log("Failed to lock file: '" + std::string(lock_path) + "'", "ERROR");
+		fclose(lock_file);
+		exit(EXIT_FAILURE);
 	}
 }

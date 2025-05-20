@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <arpa/inet.h>
 #include <fcntl.h>
+#include "Tintin_reporter.hpp"
 
 namespace MD
 {
@@ -23,6 +24,7 @@ namespace MD
 			int				socket;
 			std::string		hostname;
 			std::string		buffer;
+			Tintin_reporter&		reporter = MD::Tintin_reporter::getInstance();
 
 		public:
 			/* -- Member functions -- */

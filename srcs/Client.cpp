@@ -40,7 +40,7 @@ void			MD::Client::startListeningSocket(int serverSocket, bool maxClientsReached
 
 	if (maxClientsReached)
 	{
-		std::cout << "Max clients reached" << std::endl;
+		this->reporter.log("Max clients reached", "LOG");
 		return ;
 	}
 
@@ -52,11 +52,13 @@ void			MD::Client::startListeningSocket(int serverSocket, bool maxClientsReached
 	}
 
 	if (getnameinfo((struct sockaddr *) &this->address, addressSize, host, NI_MAXHOST, service, NI_MAXSERV, 0) == 0)
-		std::cout << "Host1: " << host << " connected on port " << service << std::endl;
+	{
+		// std::cout << "Host1: " << host << " connected on port " << service << std::endl;
+	}
 	else 
 	{
 		inet_ntop(AF_INET, &this->address.sin_addr, host, NI_MAXHOST);
-		std::cout << "Host: " << host << " connected on port " << ntohs(this->address.sin_port) << std::endl;
+		// std::cout << "Host: " << host << " connected on port " << ntohs(this->address.sin_port) << std::endl;
 	}
 	
 	std::string s(host);

@@ -1,12 +1,20 @@
 #include "../includes/Tintin_reporter.hpp"
 
+// Inicialización del puntero estático
+MD::Tintin_reporter* MD::Tintin_reporter::instance = nullptr;
 
 MD::Tintin_reporter::Tintin_reporter() {
-	std::cout << "Hello tintin..." << std::endl;
 }
+
 MD::Tintin_reporter::~Tintin_reporter() {
-	std::cout << "Chao tintin..." << std::endl;
 	close(this->fd);
+}
+
+MD::Tintin_reporter& MD::Tintin_reporter::getInstance() {
+	if (instance == nullptr) {
+		instance = new Tintin_reporter();
+	}
+	return *instance;
 }
 
 void MD::Tintin_reporter::create(const char *log_path, const std::string &reporter)
@@ -14,7 +22,6 @@ void MD::Tintin_reporter::create(const char *log_path, const std::string &report
 	this->log_path = log_path;
 	this->reporter = reporter;
 
-	// Create the log file if it doesn't exist
 	this->createLogFile();
 	this->openLogFile();
 	dup2(this->fd, STDOUT_FILENO);

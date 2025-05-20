@@ -12,3 +12,7 @@ A daemon is a background process that runs continuously and performs specific ta
 
 ## Resources
 - https://www.youtube.com/watch?v=65DarzNIFR0
+
+
+## TODO:
+- [ ] Check error management

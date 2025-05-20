@@ -30,7 +30,7 @@ namespace MD
 	private:
 
 		std::string creationTimestamp;
-		Tintin_reporter reporter;
+		Tintin_reporter&		reporter = MD::Tintin_reporter::getInstance();
 		
 		void initialChecks();
 		void create();
@@ -38,9 +38,7 @@ namespace MD
 		void lock();
 		void run();
 		
-		void writeLog(const std::string &message);
-		
-		void signals();
+		void configSignals();
 		static void signalHandler(int signum);
 
 		void stop();

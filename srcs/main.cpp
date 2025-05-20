@@ -1,4 +1,3 @@
-#include <iostream>
 #include "../includes/Daemon.hpp"
 
 

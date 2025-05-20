@@ -14,6 +14,7 @@
 #include <algorithm>
 #include "utils.hpp"
 #include "Client.hpp"
+#include "Tintin_reporter.hpp"
 
 #define EPOLL_TIMEOUT     3000   // ms for epoll_wait
 #define EPOLL_MAX_EVENTS  64
@@ -34,6 +35,7 @@ namespace MD
 			int						epollFd;
 			struct epoll_event		eventList[EPOLL_MAX_EVENTS];
 			clients_map				clients;
+			Tintin_reporter&		reporter = MD::Tintin_reporter::getInstance();
 		
 		public:
 			Server();
@@ -46,6 +48,7 @@ namespace MD
 			std::string		getIp(void) const;
 			int 			getSocket(void) const;
 			std::string		getHostname(void) const;
+			std::string		getPort(void) const;
 
 			/* -- Member functions -- */
 			int		createNetwork();
