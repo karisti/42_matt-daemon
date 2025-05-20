@@ -221,7 +221,7 @@ int MD::Server::receiveMessage(int eventFd)
 	{
 		this->reporter.log("Request quit from client (" + std::to_string(client.getSocket()) + ").", "INFO");
 		closeClient(client);
-		terminateServer();
+		g_stopRequested = true;
 		return 0;
 	}
 
