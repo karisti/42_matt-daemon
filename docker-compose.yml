@@ -1,4 +1,3 @@
-
 services:
   debian:
     image: debian:latest
@@ -6,5 +5,9 @@ services:
     restart: always
     tty: true
     volumes:
-      - ./bin/MattDaemon:/root/MattDaemon
-
+      - ./:/root/MattDaemon
+    working_dir: /root/MattDaemon
+    ports:
+      - "4243:4242"
+    command: >
+      /bin/sh -c "apt update && apt install -y netcat-openbsd && tail -f /dev/null"
