@@ -188,7 +188,7 @@ A daemon is a background process that runs continuously and performs specific ta
 ## TODO:
 - [X] BUG: El cliente siempre pone que es el numero 5 al conectarse: (New client connecting: 5)
 - [X] Max clients: Si ya se ha alcanzado el maximo de clientes, no se acepta la conexion y se envia un mensaje al cliente.
-- [ ] Asegurar que no pete con mensajes "raros" o "especiales".
+- [X] Asegurar que no pete con mensajes "raros" o "especiales".
 - [ ] Al intentar ejecutar un segundo Daemon: an error message indicating a creation/file opening on matt_daemon.lock attempt must pop.
 - [ ] Manejo señales: señal ctrl z, ...
 - [ ] Improve error management
