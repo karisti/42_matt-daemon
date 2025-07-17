@@ -104,7 +104,6 @@ int MD::Server::loop(void)
 			/** New client connected **/
 			else if (eventFd == getSocket())
 			{
-				this->reporter.log("New client connecting: " + std::to_string(eventFd), "LOG");
 				clientConnected();
 			}
 			/** New message from client **/

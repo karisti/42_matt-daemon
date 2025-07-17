@@ -40,7 +40,9 @@ void			MD::Client::startListeningSocket(int serverSocket, bool maxClientsReached
 
 	if (maxClientsReached)
 	{
-		this->reporter.log("Max clients reached", "LOG");
+		this->reporter.log("Incoming client (" + std::to_string(this->socket) + "). Max clients reached. Connection refused.", "LOG");
+		std::string message = "Max clients reached. Try later.\n";
+		send(this->socket, message.c_str(), message.size(), 0);
 		return ;
 	}
 
@@ -63,6 +65,8 @@ void			MD::Client::startListeningSocket(int serverSocket, bool maxClientsReached
 	
 	std::string s(host);
 	this->hostname = s;
+
+	this->reporter.log("New client connected: " + std::to_string(this->socket), "LOG");
 }
 
 int	MD::Client::getSocket(void) const { return this->socket; }
