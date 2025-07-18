@@ -26,6 +26,7 @@ namespace MD
 		~Daemon();
 		
 		void daemonize();
+		FILE *lock_file = nullptr;
 		
 	private:
 

@@ -100,6 +100,12 @@ void MD::Daemon::stop()
 
 	// delete /var/lock/matt_daemon.lock
 	const char *lock_path = "/var/lock/matt_daemon.lock";
+	if (flock(fileno(lock_file), LOCK_UN) < 0)
+	{
+		this->reporter.log("Failed to unlock file: '" + std::string(lock_path) + "'", "ERROR");
+		fclose(lock_file);
+		exit(EXIT_FAILURE);
+	}
 	std::remove(lock_path);
 }
 
@@ -145,19 +151,19 @@ void MD::Daemon::lock()
 	}
 
 	const char *lock_path = "/var/lock/matt_daemon.lock";
-	FILE *lock_file = fopen(lock_path, "a");
-	if (lock_file == NULL)
+	this->lock_file = fopen(lock_path, "a");
+	if (this->lock_file == NULL)
 	{
 		this->reporter.log("Failed to create lock file: '" + std::string(lock_path) + "'", "ERROR");
 	}
 
-	fprintf(lock_file, "%d", getpid());
-	fflush(lock_file);
+	fprintf(this->lock_file, "%d", getpid());
+	fflush(this->lock_file);
 
-	if (flock(fileno(lock_file), LOCK_EX) < 0)
+	if (flock(fileno(this->lock_file), LOCK_EX) < 0)
 	{
 		this->reporter.log("Failed to lock file: '" + std::string(lock_path) + "'", "ERROR");
-		fclose(lock_file);
+		fclose(this->lock_file);
 		exit(EXIT_FAILURE);
 	}
 }
