@@ -116,20 +116,10 @@ bool g_stopRequested = false;
 void MD::Daemon::signalHandler(int signum)
 {
 	Tintin_reporter&		reporter = MD::Tintin_reporter::getInstance();
-	reporter.create("/var/log/matt_daemon.log", "Matt_daemon");
+	reporter.log("Signal received: " + std::to_string(signum), "INFO");
 
-	if (signum == SIGHUP)
+	if (signum == SIGINT || signum == SIGTERM || signum == SIGQUIT || signum == SIGTSTP)
 	{
-		reporter.log("SIGHUP received, reloading configuration", "INFO");
-		// std::cout << "Stopping daemon..." << std::endl;
-		const char *lock_path = "/var/lock/matt_daemon.lock";
-		std::remove(lock_path);
-		exit(EXIT_SUCCESS);
-	}
-	else if (signum == SIGINT || signum == SIGTERM || signum == SIGKILL)
-	{
-		reporter.log("SIGINT/SIGTERM/SIGKILL received, stopping daemon", "INFO");
-		// std::cout << "Kill Signal recieved: " << signum << std::endl;
 		g_stopRequested = true;
 	}
 	else
@@ -140,10 +130,10 @@ void MD::Daemon::signalHandler(int signum)
 
 void MD::Daemon::configSignals()
 {
-	signal(SIGHUP, signalHandler);
 	signal(SIGINT, signalHandler);
 	signal(SIGTERM, signalHandler);
-	// signal(SIGKILL, signalHandler);
+	signal(SIGQUIT, signalHandler);
+	signal(SIGTSTP, signalHandler);
 }
 
 void MD::Daemon::lock()
