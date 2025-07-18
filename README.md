@@ -189,9 +189,22 @@ A daemon is a background process that runs continuously and performs specific ta
 - [X] BUG: El cliente siempre pone que es el numero 5 al conectarse: (New client connecting: 5)
 - [X] Max clients: Si ya se ha alcanzado el maximo de clientes, no se acepta la conexion y se envia un mensaje al cliente.
 - [X] Asegurar que no pete con mensajes "raros" o "especiales".
+- [X] LOCK_UN
+- [X] Manejo señales: señal ctrl z, ...
 - [ ] Al intentar ejecutar un segundo Daemon: an error message indicating a creation/file opening on matt_daemon.lock attempt must pop.
-- [ ] Manejo señales: señal ctrl z, ...
-- [ ] Improve error management
-- [ ] Refactor code, comments, doc, config file (puerto donde se escucha, ...) ...
+- [ ] Pensar error management
+- [ ] Refactor code, error management, comments, doc, config file (puerto donde se escucha, ...) ...
+
 - [ ] Testeo god mode By Gonzalo.
-- [ ] Revisar corrección. (LOCK_UN)
+- [ ] Revisar corrección.
+- [ ] Poner readme bonito.
+
+
+| Comando    | Señal     | Número | Qué hace                                                  |
+| ---------- | --------- | ------ | --------------------------------------------------------- |
+| `kill -15` | `SIGTERM` | 15     | Termina el proceso de forma **ordenada**                  |
+| `kill -9`  | `SIGKILL` | 9      | Termina el proceso **inmediatamente** (no puede ser capturada por  que es una señal privilegiada del sistema que haria el proceso incontrolable) |
+| `kill -2`  | `SIGINT`  | 2      | Como `Ctrl+C`, interrumpe el proceso                      |
+| `kill -3`  | `SIGQUIT`  | 2      | Como `Ctrl+\`, interrumpe el proceso                      |
+| `kill -19` | `SIGSTOP` | 19     | Pausa (suspende) el proceso (como `Ctrl+Z`) (no puede ser capturada por  que es una señal privilegiada del sistema que haria el proceso incontrolable)              |
+| `kill -20` | `SIGTSTP` | 20      | Suspender con posibilidad de manejo `Ctrl+Z` |
