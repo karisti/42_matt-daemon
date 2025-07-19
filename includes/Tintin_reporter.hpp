@@ -3,6 +3,7 @@
 #include <string>
 #include <iostream>
 #include <sys/file.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #include <stdlib.h>
 
@@ -13,23 +14,24 @@ namespace MD
 	{
 		public:
 			~Tintin_reporter();
-			static Tintin_reporter& getInstance(const char *log_path, const std::string &reporter);
+			static Tintin_reporter& getInstance(const std::string &log_path, const std::string &reporter);
 			void log(const std::string &message, const std::string &level = "INFO");
 
 		private:
 			Tintin_reporter();
-			Tintin_reporter(const char *log_path, const std::string &reporter);
+			Tintin_reporter(const std::string &log_path, const std::string &reporter);
 			// Prohibir copia y asignación
 			Tintin_reporter(const Tintin_reporter&) = delete;
 			Tintin_reporter& operator=(const Tintin_reporter&) = delete;
 			
 			void			openLogFile();
+			int				createLogFile();
 			std::string		getCurrentTimestamp();
 
 		private:
-			static Tintin_reporter* instance;
-			int	fd;
-			const char 	*log_path;
-			std::string reporter;
+			static Tintin_reporter*		instance;
+		int								fd;
+			std::string					log_path;
+			std::string					reporter;
 	};
 }

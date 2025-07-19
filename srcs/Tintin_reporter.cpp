@@ -6,7 +6,7 @@ MD::Tintin_reporter* MD::Tintin_reporter::instance = nullptr;
 MD::Tintin_reporter::Tintin_reporter() {
 }
 
-MD::Tintin_reporter::Tintin_reporter(const char *log_path, const std::string &reporter)
+MD::Tintin_reporter::Tintin_reporter(const std::string &log_path, const std::string &reporter)
 {
 	this->log_path = log_path;
 	this->reporter = reporter;
@@ -20,7 +20,7 @@ MD::Tintin_reporter::~Tintin_reporter() {
 	close(this->fd);
 }
 
-MD::Tintin_reporter& MD::Tintin_reporter::getInstance(const char *log_path, const std::string &reporter) {
+MD::Tintin_reporter& MD::Tintin_reporter::getInstance(const std::string &log_path, const std::string &reporter) {
 	if (instance == nullptr) {
 		instance = new Tintin_reporter(log_path, reporter);
 	}
@@ -29,14 +29,45 @@ MD::Tintin_reporter& MD::Tintin_reporter::getInstance(const char *log_path, cons
 
 void MD::Tintin_reporter::openLogFile()
 {
-	int fd = open(this->log_path, O_WRONLY | O_APPEND | O_CREAT, 0644);
+	int fd = open(this->log_path.c_str(), O_WRONLY | O_APPEND, 0644);
 	if (fd < 0)
 	{
-		std::cerr << "Failed to open log file: " << this->log_path << std::endl;
+		switch (errno)
+		{
+			case ENOENT:
+				// Create the directory if it does not exist
+				fd = this->createLogFile();
+				break;
+			case EACCES:
+				std::cerr << "Permission denied to open log file: " << this->log_path << std::endl;
+				exit(EXIT_FAILURE);
+				break;
+			default:
+				std::cerr << "Failed to open log file: " << this->log_path << std::endl;
+				exit(EXIT_FAILURE);
+				break;
+		}
+	}
+	this->fd = fd;
+}
+
+int MD::Tintin_reporter::createLogFile() {
+
+	// Create the directory structure if it does not exist
+	std::string subdirs = this->log_path.substr(0, this->log_path.find_last_of('/'));
+	if (mkdir(subdirs.c_str(), 0755) == -1 && errno != EEXIST) {
+		std::cerr << "Failed to create directory: " << subdirs << std::endl;
 		exit(EXIT_FAILURE);
 	}
 
-	this->fd = fd;
+	// Create the log file
+	int fd = open(this->log_path.c_str(), O_WRONLY | O_CREAT | O_APPEND, 0644);
+	if (fd < 0) {
+		std::cerr << "Failed to create log file: " << this->log_path << std::endl;
+		exit(EXIT_FAILURE);
+	}
+
+	return fd;
 }
 
 void MD::Tintin_reporter::log(const std::string &message, const std::string &level)

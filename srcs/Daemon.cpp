@@ -98,8 +98,7 @@ void MD::Daemon::stop()
 {
 	this->reporter.log("Stopping daemon.");
 
-	// delete /var/lock/matt_daemon.lock
-	const char *lock_path = "/var/lock/matt_daemon.lock";
+	const char *lock_path = LOCK_PATH;
 	if (flock(fileno(lock_file), LOCK_UN) < 0)
 	{
 		this->reporter.log("Failed to unlock file: '" + std::string(lock_path) + "'", "ERROR");
@@ -150,7 +149,7 @@ void MD::Daemon::lock()
 		exit(EXIT_FAILURE);
 	}
 
-	const char *lock_path = "/var/lock/matt_daemon.lock";
+	const char *lock_path = LOCK_PATH;
 	this->lock_file = fopen(lock_path, "a");
 	if (this->lock_file == NULL)
 	{
