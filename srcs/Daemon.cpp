@@ -12,7 +12,6 @@ MD::Daemon::Daemon(const MD::Daemon& other) { *this = other; }
 MD::Daemon::~Daemon()
 {
 	this->stop();
-	this->remove();
 }
 
 MD::Daemon& MD::Daemon::operator=(const MD::Daemon &other)
@@ -80,22 +79,22 @@ void MD::Daemon::lock()
 {
 	if (chdir("/") < 0)
 	{
-		this->reporter.log("Failed to change directory to root", "ERROR");
+		this->reporter.error("Failed to change directory to root");
 		exit(EXIT_FAILURE);
 	}
 
 	const char *lock_path = LOCK_PATH;
 	this->lock_file = fopen(lock_path, "a");
 	if (this->lock_file == NULL)
-		this->reporter.log("Failed to open lock file: '" + std::string(lock_path) + "'", "ERROR");
+		this->reporter.error("Failed to open lock file: '" + std::string(lock_path) + "'");
 
 	if (flock(fileno(this->lock_file), LOCK_EX | LOCK_NB) < 0)
 	{
 		// If we can't lock the file, it means another instance is running
 		if (errno == EWOULDBLOCK)
-			this->reporter.log("Daemon is already running. '" + std::string(lock_path) + "' locked.", "ERROR");
+			this->reporter.error("Daemon is already running. '" + std::string(lock_path) + "' locked.");
 		else
-			this->reporter.log("Failed to lock file: '" + std::string(lock_path) + "'", "ERROR");
+			this->reporter.error("Failed to lock file: '" + std::string(lock_path) + "'");
 
 		fclose(this->lock_file);
 		exit(EXIT_FAILURE);
@@ -114,7 +113,7 @@ void MD::Daemon::signalHandler(int signum)
 	}
 	else
 	{
-		reporter.log("Unknown signal received: " + std::to_string(signum), "ERROR");
+		reporter.error("Unknown signal received: " + std::to_string(signum));
 	}
 }
 
@@ -133,15 +132,9 @@ void MD::Daemon::stop()
 	const char *lock_path = LOCK_PATH;
 	if (flock(fileno(lock_file), LOCK_UN) < 0)
 	{
-		this->reporter.log("Failed to unlock file: '" + std::string(lock_path) + "'", "ERROR");
+		this->reporter.error("Failed to unlock file: '" + std::string(lock_path) + "'");
 		fclose(lock_file);
 		exit(EXIT_FAILURE);
 	}
 	std::remove(lock_path);
-}
-
-void MD::Daemon::remove()
-{
-	this->reporter.log("Removing daemon.");
-	// TODO: Implement the daemon removal logic
 }

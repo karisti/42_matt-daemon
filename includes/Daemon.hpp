@@ -44,6 +44,5 @@ namespace MD
 			void configSignals();
 			static void signalHandler(int signum);
 			void stop();
-			void remove();
 	};
 }
