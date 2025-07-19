@@ -74,8 +74,9 @@ int MD::Server::loop(void)
 	/** SERVER LOOP **/
 	while (!g_stopRequested)
 	{
-		// epoll_wait timeout in milliseconds (reuse KQUEUE_TIMEOUT if desired)
-		int timeout_ms = EPOLL_TIMEOUT * 1000;
+                // epoll_wait timeout in milliseconds
+                // EPOLL_TIMEOUT is already expressed in ms so no conversion needed
+                int timeout_ms = EPOLL_TIMEOUT;
 
 		// Wait for events on epollFd, filling the same eventList array
 		if ((newEvents = epoll_wait(this->epollFd,
