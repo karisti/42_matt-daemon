@@ -13,8 +13,7 @@
 #include <map>
 #include <algorithm>
 
-// #include "utils.hpp"
-// #include "Client.hpp"
+#include "Client.hpp"
 #include "Tintin_reporter.hpp"
 #include "constants.hpp"
 
@@ -27,14 +26,14 @@ namespace MD
 	class Server
 	{
 		public:
-			// typedef std::map<int, Client>		clients_map;
+			typedef std::map<int, Client>		clients_map;
 		
 		private:
 			const char				*port;
 			int						sSocket;
 			int						epollFd;
 			struct epoll_event		eventList[EPOLL_MAX_EVENTS];
-			// clients_map				clients;
+			clients_map				clients;
 			Tintin_reporter&		reporter = MD::Tintin_reporter::getInstance(LOG_PATH, LOG_REPORTER);
 		
 		public:
@@ -45,22 +44,20 @@ namespace MD
 			Server &operator=(const Server &other);
 
 			/* -- Getters -- */
-			std::string		getIp(void) const;
 			int 			getSocket(void) const;
-			std::string		getHostname(void) const;
 			std::string		getPort(void) const;
 
 			/* -- Member functions -- */
 			int		create();
 			int		loop(void);
-			void	terminateServer(void);
+			void	terminate(void);
 			
 		private:
 			/* -- Member functions -- */
 			int		saveIp(void);
 			int		clientConnected(void);
 			void	clientDisconnected(int eventFd);
-			// void	closeClient(Client& client);
+			int		closeClient(Client& client);
 			int		receiveMessage(int eventFd);
 	};
 }
