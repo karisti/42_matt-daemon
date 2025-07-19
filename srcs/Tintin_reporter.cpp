@@ -77,6 +77,12 @@ void MD::Tintin_reporter::log(const std::string &message, const std::string &lev
 	write(this->fd, log_message.c_str(), log_message.size());
 }
 
+int MD::Tintin_reporter::error(const std::string &message)
+{
+	this->log(message + ": " + std::strerror(errno), "ERROR");
+	return -1;
+}
+
 std::string		MD::Tintin_reporter::getCurrentTimestamp()
 {
 	time_t now = time(0);

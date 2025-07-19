@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <cstring>
 
 
 namespace MD
@@ -16,6 +17,7 @@ namespace MD
 			~Tintin_reporter();
 			static Tintin_reporter& getInstance(const std::string &log_path, const std::string &reporter);
 			void log(const std::string &message, const std::string &level = "INFO");
+			int  error(const std::string &message);
 
 		private:
 			Tintin_reporter();

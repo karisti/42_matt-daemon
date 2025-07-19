@@ -1,9 +1,12 @@
-#include "../includes/Daemon.hpp"
+#include "../includes/Server.hpp"
 
 
 int main() {
-	MD::Daemon daemon;
-	daemon.daemonize();
+
+	// Initialize the server with a specific port
+	MD::Server server(SERVER_PORT);
+	server.create();
+
 
 	return 0;
 }

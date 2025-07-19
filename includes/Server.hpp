@@ -12,8 +12,9 @@
 #include <netdb.h>
 #include <map>
 #include <algorithm>
-#include "utils.hpp"
-#include "Client.hpp"
+
+// #include "utils.hpp"
+// #include "Client.hpp"
 #include "Tintin_reporter.hpp"
 #include "constants.hpp"
 
@@ -26,16 +27,14 @@ namespace MD
 	class Server
 	{
 		public:
-			typedef std::map<int, Client>		clients_map;
+			// typedef std::map<int, Client>		clients_map;
 		
 		private:
-			std::string				hostname;
-			std::string				ip;
 			const char				*port;
 			int						sSocket;
 			int						epollFd;
 			struct epoll_event		eventList[EPOLL_MAX_EVENTS];
-			clients_map				clients;
+			// clients_map				clients;
 			Tintin_reporter&		reporter = MD::Tintin_reporter::getInstance(LOG_PATH, LOG_REPORTER);
 		
 		public:
@@ -52,7 +51,7 @@ namespace MD
 			std::string		getPort(void) const;
 
 			/* -- Member functions -- */
-			int		createNetwork();
+			int		create();
 			int		loop(void);
 			void	terminateServer(void);
 			
@@ -61,9 +60,7 @@ namespace MD
 			int		saveIp(void);
 			int		clientConnected(void);
 			void	clientDisconnected(int eventFd);
-			void	closeClient(Client& client);
+			// void	closeClient(Client& client);
 			int		receiveMessage(int eventFd);
-			int		throwError(std::string message);
 	};
 }
-
