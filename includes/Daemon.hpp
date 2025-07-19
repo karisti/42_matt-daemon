@@ -12,40 +12,37 @@
 #include <stdio.h>
 #include <atomic>
 #include <csignal>
-#include "Tintin_reporter.hpp"
-#include "Server.hpp"
-#include "utils.hpp"
 #include <cstring>
 #include <cerrno>
+
 #include "constants.hpp"
+#include "Tintin_reporter.hpp"
+#include "Server.hpp"
+
 
 namespace MD
 {
 	class Daemon
 	{
-	public:
+		private:
+			FILE				*lock_file = nullptr;
+			std::string			creationTimestamp;
+			Tintin_reporter&	reporter = MD::Tintin_reporter::getInstance(LOG_PATH, LOG_REPORTER);
+	
+		public:
+			Daemon();
+			Daemon(const Daemon& other);
+			~Daemon();
+			Daemon &operator=(const Daemon &other);
 
-		Daemon();
-		~Daemon();
-		
-		void daemonize();
-		FILE *lock_file = nullptr;
-		
-	private:
+			void daemonize();
 
-		std::string creationTimestamp;
-		Tintin_reporter&		reporter = MD::Tintin_reporter::getInstance(LOG_PATH, LOG_REPORTER);
-		
-		void initialChecks();
-		void create();
-		void createFork();
-		void lock();
-		void run();
-		
-		void configSignals();
-		static void signalHandler(int signum);
-
-		void stop();
-		void remove();
+		private:
+			void initialChecks();
+			void createFork();
+			void lock();
+			void configSignals();
+			static void signalHandler(int signum);
+			void stop();
 	};
 }

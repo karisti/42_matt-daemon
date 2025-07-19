@@ -70,11 +70,18 @@ int MD::Tintin_reporter::createLogFile() {
 	return fd;
 }
 
-void MD::Tintin_reporter::log(const std::string &message, const std::string &level)
+int MD::Tintin_reporter::log(const std::string &message, const std::string &level)
 {
 	// Write the log message to the file
 	std::string log_message = "[" + this->getCurrentTimestamp() + "] [ " + level + " ] - " + this->reporter + ": " + message + "\n";
 	write(this->fd, log_message.c_str(), log_message.size());
+	return 0;
+}
+
+int MD::Tintin_reporter::error(const std::string &message)
+{
+	this->log(message + ": " + std::strerror(errno), "ERROR");
+	return -1;
 }
 
 std::string		MD::Tintin_reporter::getCurrentTimestamp()

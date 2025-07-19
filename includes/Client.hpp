@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <arpa/inet.h>
 #include <fcntl.h>
+
 #include "Tintin_reporter.hpp"
 #include "constants.hpp"
 
@@ -21,20 +22,13 @@ namespace MD
 			Client &operator=(const Client &other);
 
 		private:
-			sockaddr_in		address;
-			int				socket;
-			std::string		hostname;
-			std::string		buffer;
-			Tintin_reporter&		reporter = MD::Tintin_reporter::getInstance(LOG_PATH, LOG_REPORTER);
+			int					socket;
+			sockaddr_in			address;
+			Tintin_reporter&	reporter = MD::Tintin_reporter::getInstance(LOG_PATH, LOG_REPORTER);
 
 		public:
 			/* -- Member functions -- */
-			void			startListeningSocket(int serverSocket, bool maxClientsReached);
 			int				getSocket(void) const;
-			std::string		getHostname(void) const;
-
-			std::string				getBuffer(void) const;
-			void					appendBuffer(std::string str);
-			void					clearBuffer(void);
+			int				startListeningSocket(int serverSocket, bool maxClientsReached);
 	};
 }

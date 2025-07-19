@@ -4,8 +4,6 @@
 MD::Client::Client(void)
 {
 	this->socket = 0;
-	this->hostname =  "";
-	this->buffer = "";
 }
 
 MD::Client::Client(const MD::Client& other) { *this = other; }
@@ -13,15 +11,18 @@ MD::Client::~Client() {}
 
 MD::Client& MD::Client::operator=(const MD::Client &other)
 {
-	this->address = other.address;
-	this->socket = other.socket;
-	this->hostname = other.hostname;
-	this->buffer = other.buffer;
+	if (this != &other)
+	{
+		this->socket = other.socket;
+		this->address = other.address;
+	}
 	
 	return *this;
 }
 
-void			MD::Client::startListeningSocket(int serverSocket, bool maxClientsReached)
+int	MD::Client::getSocket(void) const { return this->socket; }
+
+int			MD::Client::startListeningSocket(int serverSocket, bool maxClientsReached)
 {
 	char host[NI_MAXHOST];
 	char service[NI_MAXSERV];
@@ -33,45 +34,23 @@ void			MD::Client::startListeningSocket(int serverSocket, bool maxClientsReached
 	/** Accept client connection **/
 	this->socket = accept(serverSocket, (struct sockaddr *)&this->address, &addressSize);
 	if (this->socket == -1)
-	{
-		perror("Accept socket error");
-		return ;
-	}
+		return this->reporter.error("Accept socket error");
 
+	/** Refuse connection if max clients reached **/
 	if (maxClientsReached)
 	{
-		this->reporter.log("Incoming client (" + std::to_string(this->socket) + "). Max clients reached. Connection refused.", "LOG");
 		std::string message = "Max clients reached. Try later.\n";
 		send(this->socket, message.c_str(), message.size(), 0);
-		return ;
+		close(this->socket);
+		this->reporter.log("Incoming client (" + std::to_string(this->socket) + "). Max clients reached. Connection refused.", "LOG");
+		return -1;
 	}
 
 	/** Make non-blocking **/
 	if (fcntl(this->socket, F_SETFL, O_NONBLOCK) < 0)
-	{
-		perror("Error making client socket non blocking");
-		return ;
-	}
-
-	if (getnameinfo((struct sockaddr *) &this->address, addressSize, host, NI_MAXHOST, service, NI_MAXSERV, 0) == 0)
-	{
-		// std::cout << "Host1: " << host << " connected on port " << service << std::endl;
-	}
-	else 
-	{
-		inet_ntop(AF_INET, &this->address.sin_addr, host, NI_MAXHOST);
-		// std::cout << "Host: " << host << " connected on port " << ntohs(this->address.sin_port) << std::endl;
-	}
-	
-	std::string s(host);
-	this->hostname = s;
+		return this->reporter.error("Error making client socket non blocking");
 
 	this->reporter.log("New client connected: " + std::to_string(this->socket), "LOG");
+
+	return 0;
 }
-
-int	MD::Client::getSocket(void) const { return this->socket; }
-std::string	MD::Client::getHostname(void) const { return this->hostname; }
-
-void			MD::Client::appendBuffer(std::string str) { this->buffer.append(str); }
-void			MD::Client::clearBuffer(void) { this->buffer.clear(); }
-std::string		MD::Client::getBuffer(void) const { return this->buffer; }

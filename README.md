@@ -192,12 +192,12 @@ A daemon is a background process that runs continuously and performs specific ta
 - [X] LOCK_UN
 - [X] Manejo señales: señal ctrl z, ...
 - [X] Al intentar ejecutar un segundo Daemon: an error message indicating a creation/file opening on matt_daemon.lock attempt must pop.
-- [ ] Pensar error management
-- [ ] Refactor code, error management, comments, doc, config file (puerto donde se escucha, ...) ...
+- [X] Pensar error management
+- [X] Refactor code, error management, config file (puerto donde se escucha, ...) ...
 
 - [ ] Testeo god mode By Gonzalo.
 - [ ] Revisar corrección.
-- [ ] Poner readme bonito.
+- [ ] Poner readme bonito. Comentarios en el código, documentación, etc.
 
 
 | Comando    | Señal     | Número | Qué hace                                                  |
