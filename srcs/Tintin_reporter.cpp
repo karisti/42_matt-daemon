@@ -6,45 +6,30 @@ MD::Tintin_reporter* MD::Tintin_reporter::instance = nullptr;
 MD::Tintin_reporter::Tintin_reporter() {
 }
 
-MD::Tintin_reporter::~Tintin_reporter() {
-	close(this->fd);
-}
-
-MD::Tintin_reporter& MD::Tintin_reporter::getInstance() {
-	if (instance == nullptr) {
-		instance = new Tintin_reporter();
-	}
-	return *instance;
-}
-
-void MD::Tintin_reporter::create(const char *log_path, const std::string &reporter)
+MD::Tintin_reporter::Tintin_reporter(const char *log_path, const std::string &reporter)
 {
 	this->log_path = log_path;
 	this->reporter = reporter;
 
-	this->createLogFile();
 	this->openLogFile();
 	dup2(this->fd, STDOUT_FILENO);
 	dup2(this->fd, STDERR_FILENO);
 }
 
-void MD::Tintin_reporter::createLogFile()
-{
-	int fd = open(this->log_path, O_CREAT | O_TRUNC, 0644);
-	if (fd < 0)
-	{
-		std::cerr << "Failed to create log file: " << this->log_path << std::endl;
-		exit(EXIT_FAILURE);
+MD::Tintin_reporter::~Tintin_reporter() {
+	close(this->fd);
+}
+
+MD::Tintin_reporter& MD::Tintin_reporter::getInstance(const char *log_path, const std::string &reporter) {
+	if (instance == nullptr) {
+		instance = new Tintin_reporter(log_path, reporter);
 	}
-	else
-	{
-		close(fd);
-	}
+	return *instance;
 }
 
 void MD::Tintin_reporter::openLogFile()
 {
-	int fd = open(this->log_path, O_WRONLY | O_APPEND);
+	int fd = open(this->log_path, O_WRONLY | O_APPEND | O_CREAT, 0644);
 	if (fd < 0)
 	{
 		std::cerr << "Failed to open log file: " << this->log_path << std::endl;

@@ -1,5 +1,6 @@
 #include "../includes/Daemon.hpp"
 #include "../includes/utils.hpp"
+#include "constants.hpp"
 
 MD::Daemon::Daemon()
 {
@@ -21,13 +22,13 @@ void MD::Daemon::initialChecks()
 		exit(EXIT_FAILURE);
 	}
 
-	// Check if the lock file already exists
-	const char *lock_path = "/var/lock/matt_daemon.lock";
-	if (access(lock_path, F_OK) == 0)
-	{
-		std::cerr << "Daemon is already running." << std::endl;
-		exit(EXIT_FAILURE);
-	}
+	// // Check if the lock file already exists
+	// const char *lock_path = "/var/lock/matt_daemon.lock";
+	// if (access(lock_path, F_OK) == 0)
+	// {
+	// 	std::cerr << "Daemon is already running." << std::endl;
+	// 	exit(EXIT_FAILURE);
+	// }
 }
 
 void MD::Daemon::daemonize()
@@ -39,7 +40,6 @@ void MD::Daemon::daemonize()
 void MD::Daemon::create()
 {
 	umask(0);
-	this->reporter.create("/var/log/matt_daemon.log", "Matt_daemon");
 
 	this->createFork();
 
@@ -121,7 +121,7 @@ bool g_stopRequested = false;
 
 void MD::Daemon::signalHandler(int signum)
 {
-	Tintin_reporter&		reporter = MD::Tintin_reporter::getInstance();
+	Tintin_reporter&		reporter = MD::Tintin_reporter::getInstance(LOG_PATH, LOG_REPORTER);
 	reporter.log("Signal received: " + std::to_string(signum), "INFO");
 
 	if (signum == SIGINT || signum == SIGTERM || signum == SIGQUIT || signum == SIGTSTP)

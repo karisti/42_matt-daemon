@@ -13,18 +13,17 @@ namespace MD
 	{
 		public:
 			~Tintin_reporter();
-			static Tintin_reporter& getInstance();
-			void create(const char *log_path, const std::string &reporter);
+			static Tintin_reporter& getInstance(const char *log_path, const std::string &reporter);
 			void log(const std::string &message, const std::string &level = "INFO");
 
 		private:
 			Tintin_reporter();
+			Tintin_reporter(const char *log_path, const std::string &reporter);
 			// Prohibir copia y asignación
 			Tintin_reporter(const Tintin_reporter&) = delete;
 			Tintin_reporter& operator=(const Tintin_reporter&) = delete;
 			
 			void			openLogFile();
-			void 			createLogFile();
 			std::string		getCurrentTimestamp();
 
 		private:

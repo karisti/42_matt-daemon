@@ -15,6 +15,9 @@
 #include "Tintin_reporter.hpp"
 #include "Server.hpp"
 #include "utils.hpp"
+#include <cstring>
+#include <cerrno>
+#include "constants.hpp"
 
 namespace MD
 {
@@ -31,7 +34,7 @@ namespace MD
 	private:
 
 		std::string creationTimestamp;
-		Tintin_reporter&		reporter = MD::Tintin_reporter::getInstance();
+		Tintin_reporter&		reporter = MD::Tintin_reporter::getInstance(LOG_PATH, LOG_REPORTER);
 		
 		void initialChecks();
 		void create();

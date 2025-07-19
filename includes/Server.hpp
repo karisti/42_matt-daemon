@@ -15,6 +15,7 @@
 #include "utils.hpp"
 #include "Client.hpp"
 #include "Tintin_reporter.hpp"
+#include "constants.hpp"
 
 #define EPOLL_TIMEOUT     3000   // ms for epoll_wait
 #define EPOLL_MAX_EVENTS  64
@@ -35,7 +36,7 @@ namespace MD
 			int						epollFd;
 			struct epoll_event		eventList[EPOLL_MAX_EVENTS];
 			clients_map				clients;
-			Tintin_reporter&		reporter = MD::Tintin_reporter::getInstance();
+			Tintin_reporter&		reporter = MD::Tintin_reporter::getInstance(LOG_PATH, LOG_REPORTER);
 		
 		public:
 			Server();

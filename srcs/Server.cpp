@@ -1,7 +1,6 @@
 #include "../includes/Server.hpp"
 
 MD::Server::Server() {
-	reporter.create("/var/log/matt_daemon.log", "Matt_daemon");
 }
 
 MD::Server::Server(const char *port): port(port) {}
