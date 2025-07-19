@@ -21,14 +21,6 @@ void MD::Daemon::initialChecks()
 		std::cerr << "Este programa debe ejecutarse como root." << std::endl;
 		exit(EXIT_FAILURE);
 	}
-
-	// // Check if the lock file already exists
-	// const char *lock_path = "/var/lock/matt_daemon.lock";
-	// if (access(lock_path, F_OK) == 0)
-	// {
-	// 	std::cerr << "Daemon is already running." << std::endl;
-	// 	exit(EXIT_FAILURE);
-	// }
 }
 
 void MD::Daemon::daemonize()
@@ -156,13 +148,21 @@ void MD::Daemon::lock()
 		this->reporter.log("Failed to create lock file: '" + std::string(lock_path) + "'", "ERROR");
 	}
 
-	fprintf(this->lock_file, "%d", getpid());
-	fflush(this->lock_file);
-
-	if (flock(fileno(this->lock_file), LOCK_EX) < 0)
+	if (flock(fileno(this->lock_file), LOCK_EX | LOCK_NB) < 0)
 	{
-		this->reporter.log("Failed to lock file: '" + std::string(lock_path) + "'", "ERROR");
+		// If we can't lock the file, it means another instance is running
+		if (errno == EWOULDBLOCK)
+		{
+			this->reporter.log("Daemon is already running. '" + std::string(lock_path) + "' locked.", "ERROR");
+		}
+		else
+		{
+			this->reporter.log("Failed to lock file: '" + std::string(lock_path) + "'", "ERROR");
+		}
 		fclose(this->lock_file);
 		exit(EXIT_FAILURE);
 	}
+
+	fprintf(this->lock_file, "%d", getpid());
+	fflush(this->lock_file);
 }

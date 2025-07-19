@@ -191,7 +191,7 @@ A daemon is a background process that runs continuously and performs specific ta
 - [X] Asegurar que no pete con mensajes "raros" o "especiales".
 - [X] LOCK_UN
 - [X] Manejo señales: señal ctrl z, ...
-- [ ] Al intentar ejecutar un segundo Daemon: an error message indicating a creation/file opening on matt_daemon.lock attempt must pop.
+- [X] Al intentar ejecutar un segundo Daemon: an error message indicating a creation/file opening on matt_daemon.lock attempt must pop.
 - [ ] Pensar error management
 - [ ] Refactor code, error management, comments, doc, config file (puerto donde se escucha, ...) ...
 
