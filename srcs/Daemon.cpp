@@ -52,25 +52,25 @@ void MD::Daemon::createFork()
 {
 	pid_t child_pid;
 
-	child_pid = fork();
-	if (child_pid < 0) // Fork failed
-	{
-		this->reporter.error("Failed to fork process");
-		exit(EXIT_FAILURE);
-	}
-	if (child_pid > 0) // Parent process
-		exit(EXIT_SUCCESS);
+        child_pid = fork();
+        if (child_pid < 0) // Fork failed
+        {
+                this->reporter.error("Failed to fork process");
+                throw MD::Exception("Failed to fork process");
+        }
+        if (child_pid > 0) // Parent process
+                exit(EXIT_SUCCESS);
 
 	return;
 }
 
 void MD::Daemon::lock()
 {
-	if (chdir("/") < 0)
-	{
-		this->reporter.error("Failed to change directory to root");
-		exit(EXIT_FAILURE);
-	}
+        if (chdir("/") < 0)
+        {
+                this->reporter.error("Failed to change directory to root");
+                throw MD::Exception("Failed to change directory to root");
+        }
 
 	const char *lock_path = LOCK_PATH;
 	this->lock_file = fopen(lock_path, "a");
@@ -89,9 +89,9 @@ void MD::Daemon::lock()
 			this->reporter.error("Failed to lock file: '" + std::string(lock_path) + "'");
 		}
 
-		fclose(this->lock_file);
-		exit(EXIT_FAILURE);
-	}
+                fclose(this->lock_file);
+                throw MD::Exception("Failed to lock file");
+        }
 }
 
 void MD::Daemon::stop()
@@ -99,13 +99,13 @@ void MD::Daemon::stop()
 	this->reporter.log("Stopping daemon.");
 
 	const char *lock_path = LOCK_PATH;
-	if (flock(fileno(lock_file), LOCK_UN) < 0)
-	{
-		this->reporter.error("Failed to unlock file: '" + std::string(lock_path) + "'");
-		fclose(lock_file);
-		exit(EXIT_FAILURE);
-	}
-	std::remove(lock_path);
+        if (flock(fileno(lock_file), LOCK_UN) < 0)
+        {
+                this->reporter.error("Failed to unlock file: '" + std::string(lock_path) + "'");
+                fclose(lock_file);
+                throw MD::Exception("Failed to unlock file");
+        }
+        std::remove(lock_path);
 }
 
 bool g_stopRequested = false;
