@@ -86,9 +86,9 @@ int MD::Server::loop(void)
 	/** SERVER LOOP **/
 	while (!g_stopRequested)
 	{
-                // epoll_wait timeout in milliseconds
-                // EPOLL_TIMEOUT is already expressed in ms so no conversion needed
-                int timeout_ms = EPOLL_TIMEOUT;
+				// epoll_wait timeout in milliseconds
+				// EPOLL_TIMEOUT is already expressed in ms so no conversion needed
+				int timeout_ms = EPOLL_TIMEOUT;
 
 		// Wait for events on epollFd, filling the same eventList array
 		if ((newEvents = epoll_wait(this->epollFd,
