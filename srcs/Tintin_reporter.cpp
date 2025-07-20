@@ -12,8 +12,8 @@ MD::Tintin_reporter::Tintin_reporter(const std::string &log_path, const std::str
 	this->reporter = reporter;
 
 	this->openLogFile();
-	dup2(this->fd, STDOUT_FILENO);
-	dup2(this->fd, STDERR_FILENO);
+	// dup2(this->fd, STDOUT_FILENO);
+	// dup2(this->fd, STDERR_FILENO);
 }
 
 MD::Tintin_reporter::~Tintin_reporter() {
