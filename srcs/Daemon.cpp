@@ -3,7 +3,6 @@
 
 MD::Daemon::Daemon()
 {
-	this->initialChecks();
 	this->lock();
 }
 
@@ -47,16 +46,6 @@ void MD::Daemon::daemonize()
 	this->reporter.log("Daemon started with PID: " + std::to_string(getpid()) + ".");
 
 	this->configSignals();
-}
-
-void MD::Daemon::initialChecks()
-{
-	// Check if the program is running as root
-	if (geteuid() != 0)
-	{
-		this->reporter.error("This program must be run as root.");
-		exit(EXIT_FAILURE);
-	}
 }
 
 void MD::Daemon::createFork()

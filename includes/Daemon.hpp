@@ -38,7 +38,6 @@ namespace MD
 			void daemonize();
 
 		private:
-			void initialChecks();
 			void createFork();
 			void lock();
 			void configSignals();
