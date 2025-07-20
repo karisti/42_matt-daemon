@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <cstring>
+#include "MDException.hpp"
 
 
 namespace MD
