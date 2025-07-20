@@ -17,8 +17,6 @@
 
 #include "constants.hpp"
 #include "Tintin_reporter.hpp"
-#include "Server.hpp"
-#include "MDException.hpp"
 
 
 namespace MD

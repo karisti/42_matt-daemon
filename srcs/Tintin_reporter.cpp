@@ -39,15 +39,15 @@ void MD::Tintin_reporter::openLogFile()
 				fd = this->createLogFile();
 				break;
 			case EACCES:
-                                std::cerr << "Permission denied to open log file: " << this->log_path << std::endl;
-                                throw MD::Exception("Permission denied to open log file");
-                                break;
-                        default:
-                                std::cerr << "Failed to open log file: " << this->log_path << std::endl;
-                                throw MD::Exception("Failed to open log file");
-                                break;
-                }
-        }
+				std::cerr << "Permission denied to open log file: " << this->log_path << std::endl;
+				throw MD::Exception("Permission denied to open log file");
+				break;
+			default:
+				std::cerr << "Failed to open log file: " << this->log_path << std::endl;
+				throw MD::Exception("Failed to open log file");
+				break;
+		}
+	}
 	this->fd = fd;
 }
 
@@ -55,17 +55,17 @@ int MD::Tintin_reporter::createLogFile() {
 
 	// Create the directory structure if it does not exist
 	std::string subdirs = this->log_path.substr(0, this->log_path.find_last_of('/'));
-        if (mkdir(subdirs.c_str(), 0755) == -1 && errno != EEXIST) {
-                std::cerr << "Failed to create directory: " << subdirs << std::endl;
-                throw MD::Exception("Failed to create directory");
-        }
+	if (mkdir(subdirs.c_str(), 0755) == -1 && errno != EEXIST) {
+		std::cerr << "Failed to create directory: " << subdirs << std::endl;
+		throw MD::Exception("Failed to create directory");
+	}
 
 	// Create the log file
 	int fd = open(this->log_path.c_str(), O_WRONLY | O_CREAT | O_APPEND, 0644);
-        if (fd < 0) {
-                std::cerr << "Failed to create log file: " << this->log_path << std::endl;
-                throw MD::Exception("Failed to create log file");
-        }
+	if (fd < 0) {
+		std::cerr << "Failed to create log file: " << this->log_path << std::endl;
+		throw MD::Exception("Failed to create log file");
+	}
 
 	return fd;
 }
@@ -80,10 +80,10 @@ int MD::Tintin_reporter::log(const std::string &message, const std::string &leve
 
 int MD::Tintin_reporter::error(const std::string &message, bool raiseException)
 {
-        this->log(message + ": " + std::strerror(errno), "ERROR");
-        if (raiseException)
-                throw MD::Exception(message);
-        return -1;
+	this->log(message + ": " + std::strerror(errno), "ERROR");
+	if (raiseException)
+		throw MD::Exception(message);
+	return -1;
 }
 
 std::string		MD::Tintin_reporter::getCurrentTimestamp()

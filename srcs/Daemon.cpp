@@ -29,12 +29,10 @@ void MD::Daemon::daemonize()
 
 	this->createFork();
 
-	 // Create a new session
-        pid_t sid = setsid();
-        if (sid < 0)
-        {
-                this->reporter.error("Failed to create new session", true);
-        }
+	// Create a new session
+	pid_t sid = setsid();
+	if (sid < 0)
+		this->reporter.error("Failed to create new session", true);
 
 	this->createFork();
 
@@ -51,43 +49,41 @@ void MD::Daemon::createFork()
 {
 	pid_t child_pid;
 
-        child_pid = fork();
-        if (child_pid < 0) // Fork failed
-        {
-                this->reporter.error("Failed to fork process", true);
-        }
-        if (child_pid > 0) // Parent process
-                exit(EXIT_SUCCESS);
+	child_pid = fork();
+	if (child_pid < 0) // Fork failed
+		this->reporter.error("Failed to fork process", true);
+	if (child_pid > 0) // Parent process
+		exit(EXIT_SUCCESS);
 
 	return;
 }
 
 void MD::Daemon::lock()
 {
-        if (chdir("/") < 0)
-        {
-                this->reporter.error("Failed to change directory to root", true);
-        }
+	if (chdir("/") < 0)
+		this->reporter.error("Failed to change directory to root", true);
 
 	const char *lock_path = LOCK_PATH;
 	this->lock_file = fopen(lock_path, "a");
-        if (this->lock_file == NULL)
-                this->reporter.error("Failed to open lock file: '" + std::string(lock_path) + "'");
+	if (this->lock_file == NULL)
+		this->reporter.error("Failed to open lock file: '" + std::string(lock_path) + "'");
 
-        if (flock(fileno(this->lock_file), LOCK_EX | LOCK_NB) < 0)
-        {
-                // If we can't lock the file, it means another instance is running
-                if (errno == EWOULDBLOCK) {
-                        std::cerr << "Another instance of the daemon is already running." << std::endl;
-                        fclose(this->lock_file);
-                        this->reporter.error("Daemon is already running. '" + std::string(lock_path) + "' locked.", true);
-                }
-                else {
-                        std::cerr << "Failed to lock file: '" << lock_path << "'" << std::endl;
-                        fclose(this->lock_file);
-                        this->reporter.error("Failed to lock file: '" + std::string(lock_path) + "'", true);
-                }
-        }
+	if (flock(fileno(this->lock_file), LOCK_EX | LOCK_NB) < 0)
+	{
+		// If we can't lock the file, it means another instance is running
+		if (errno == EWOULDBLOCK)
+		{
+			std::cerr << "Another instance of the daemon is already running." << std::endl;
+			fclose(this->lock_file);
+			this->reporter.error("Daemon is already running. '" + std::string(lock_path) + "' locked.", true);
+		}
+		else
+		{
+			std::cerr << "Failed to lock file: '" << lock_path << "'" << std::endl;
+			fclose(this->lock_file);
+			this->reporter.error("Failed to lock file: '" + std::string(lock_path) + "'", true);
+		}
+	}
 }
 
 void MD::Daemon::stop()
@@ -95,12 +91,12 @@ void MD::Daemon::stop()
 	this->reporter.log("Stopping daemon.");
 
 	const char *lock_path = LOCK_PATH;
-        if (flock(fileno(lock_file), LOCK_UN) < 0)
-        {
-                fclose(lock_file);
-                this->reporter.error("Failed to unlock file: '" + std::string(lock_path) + "'", true);
-        }
-        std::remove(lock_path);
+	if (flock(fileno(lock_file), LOCK_UN) < 0)
+	{
+		fclose(lock_file);
+		this->reporter.error("Failed to unlock file: '" + std::string(lock_path) + "'", true);
+	}
+	std::remove(lock_path);
 }
 
 bool g_stopRequested = false;

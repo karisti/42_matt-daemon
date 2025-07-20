@@ -10,7 +10,6 @@
 
 #include "Tintin_reporter.hpp"
 #include "constants.hpp"
-#include "MDException.hpp"
 
 namespace MD
 {

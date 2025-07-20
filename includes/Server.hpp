@@ -16,7 +16,6 @@
 #include "Client.hpp"
 #include "Tintin_reporter.hpp"
 #include "constants.hpp"
-#include "MDException.hpp"
 
 #define EPOLL_TIMEOUT     3000   // ms for epoll_wait
 #define EPOLL_MAX_EVENTS  64
