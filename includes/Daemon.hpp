@@ -18,6 +18,7 @@
 #include "constants.hpp"
 #include "Tintin_reporter.hpp"
 #include "Server.hpp"
+#include "MDException.hpp"
 
 
 namespace MD
@@ -28,7 +29,7 @@ namespace MD
 			FILE				*lock_file = nullptr;
 			std::string			creationTimestamp;
 			Tintin_reporter&	reporter = MD::Tintin_reporter::getInstance(LOG_PATH, LOG_REPORTER);
-	
+
 		public:
 			Daemon();
 			Daemon(const Daemon& other);

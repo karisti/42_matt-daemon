@@ -16,7 +16,7 @@ MD::Client& MD::Client::operator=(const MD::Client &other)
 		this->socket = other.socket;
 		this->address = other.address;
 	}
-	
+
 	return *this;
 }
 
@@ -28,9 +28,9 @@ int			MD::Client::startListeningSocket(int serverSocket, bool maxClientsReached)
 	char service[NI_MAXSERV];
 	memset(host, 0, NI_MAXHOST);
 	memset(service, 0, NI_MAXSERV);
-	
+
 	socklen_t addressSize = sizeof(this->address);
-	
+
 	/** Accept client connection **/
 	this->socket = accept(serverSocket, (struct sockaddr *)&this->address, &addressSize);
 	if (this->socket == -1)

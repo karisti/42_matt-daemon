@@ -91,7 +91,7 @@ std::string		MD::Tintin_reporter::getCurrentTimestamp()
 	time_t now = time(0);
 	struct tm* timeinfo = localtime(&now);
 	char buffer[80];
-	
+
 	strftime(buffer, 80, "%d/%m/%Y-%H:%M:%S", timeinfo);
 	return std::string(buffer);
 }

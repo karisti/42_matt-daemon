@@ -16,6 +16,7 @@
 #include "Client.hpp"
 #include "Tintin_reporter.hpp"
 #include "constants.hpp"
+#include "MDException.hpp"
 
 #define EPOLL_TIMEOUT     3000   // ms for epoll_wait
 #define EPOLL_MAX_EVENTS  64
@@ -27,7 +28,7 @@ namespace MD
 	{
 		public:
 			typedef std::map<int, Client>		clients_map;
-		
+
 		private:
 			const char				*port;
 			int						sSocket;
@@ -35,7 +36,7 @@ namespace MD
 			struct epoll_event		eventList[EPOLL_MAX_EVENTS];
 			clients_map				clients;
 			Tintin_reporter&		reporter = MD::Tintin_reporter::getInstance(LOG_PATH, LOG_REPORTER);
-		
+
 		public:
 			Server();
 			Server(const char *port);
@@ -51,7 +52,7 @@ namespace MD
 			int		create();
 			int		loop(void);
 			void	terminate(void);
-			
+
 		private:
 			/* -- Member functions -- */
 			int		saveIp(void);
