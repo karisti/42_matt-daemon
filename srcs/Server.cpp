@@ -14,6 +14,18 @@ MD::Server &MD::Server::operator=(const MD::Server &other)
 	if (this != &other)
 	{
 		this->port = other.port;
+		this->sSocket = other.sSocket;
+		this->epollFd = other.epollFd;
+
+		for (int i = 0; i < EPOLL_MAX_EVENTS; ++i)
+		{
+			this->eventList[i] = other.eventList[i];
+		}
+
+		for (MD::Server::clients_map::const_iterator it = other.clients.begin(); it != other.clients.end(); ++it)
+		{
+			this->clients[it->first] = it->second;
+		}
 	}
 
 	return *this;
