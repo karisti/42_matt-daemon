@@ -213,12 +213,7 @@ void MD::Server::terminate(void)
 {
 	/** Close client sockets **/
 	for (MD::Server::clients_map::iterator clientIt = this->clients.begin(); clientIt != this->clients.end(); ++clientIt)
-	{
-		if (close(clientIt->second.getSocket()) == -1)
-			this->reporter.error("Client close error for fd: " + std::to_string(clientIt->second.getSocket()));
-
-		this->reporter.log("Client (" + std::to_string(clientIt->second.getSocket()) + ") closed", "LOG");
-	}
+		this->closeClient(clientIt->second);
 
 	/** Close server socket **/
 	if (close(this->getSocket()) == -1)
