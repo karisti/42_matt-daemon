@@ -29,7 +29,7 @@ void MD::Daemon::daemonize()
 
 	this->createFork();
 
-	 // Create a new session
+	// Create a new session
 	pid_t sid = setsid();
 	if (sid < 0)
 	{

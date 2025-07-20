@@ -25,7 +25,7 @@ namespace MD
 			// Prohibir copia y asignación
 			Tintin_reporter(const Tintin_reporter&) = delete;
 			Tintin_reporter& operator=(const Tintin_reporter&) = delete;
-			
+
 			void			openLogFile();
 			int				createLogFile();
 			std::string		getCurrentTimestamp();
