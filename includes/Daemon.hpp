@@ -1,4 +1,4 @@
-#pragma once
+ill #pragma once
 
 #include <string>
 #include <cstdlib>
@@ -40,8 +40,8 @@ namespace MD
 		private:
 			void createFork();
 			void lock();
+			void stop();
 			void configSignals();
 			static void signalHandler(int signum);
-			void stop();
 	};
 }

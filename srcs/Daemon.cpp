@@ -90,6 +90,20 @@ void MD::Daemon::lock()
 	}
 }
 
+void MD::Daemon::stop()
+{
+	this->reporter.log("Stopping daemon.");
+
+	const char *lock_path = LOCK_PATH;
+	if (flock(fileno(lock_file), LOCK_UN) < 0)
+	{
+		this->reporter.error("Failed to unlock file: '" + std::string(lock_path) + "'");
+		fclose(lock_file);
+		exit(EXIT_FAILURE);
+	}
+	std::remove(lock_path);
+}
+
 bool g_stopRequested = false;
 void MD::Daemon::signalHandler(int signum)
 {
@@ -112,18 +126,4 @@ void MD::Daemon::configSignals()
 	signal(SIGTERM, signalHandler);
 	signal(SIGQUIT, signalHandler);
 	signal(SIGTSTP, signalHandler);
-}
-
-void MD::Daemon::stop()
-{
-	this->reporter.log("Stopping daemon.");
-
-	const char *lock_path = LOCK_PATH;
-	if (flock(fileno(lock_file), LOCK_UN) < 0)
-	{
-		this->reporter.error("Failed to unlock file: '" + std::string(lock_path) + "'");
-		fclose(lock_file);
-		exit(EXIT_FAILURE);
-	}
-	std::remove(lock_path);
 }
