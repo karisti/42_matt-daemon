@@ -86,9 +86,9 @@ int MD::Server::loop(void)
 	/** SERVER LOOP **/
 	while (!g_stopRequested)
 	{
-                // epoll_wait timeout in milliseconds
-                // EPOLL_TIMEOUT is already expressed in ms so no conversion needed
-                int timeout_ms = EPOLL_TIMEOUT;
+		// epoll_wait timeout in milliseconds
+		// EPOLL_TIMEOUT is already expressed in ms so no conversion needed
+		int timeout_ms = EPOLL_TIMEOUT;
 
 		// Wait for events on epollFd, filling the same eventList array
 		if ((newEvents = epoll_wait(this->epollFd,
@@ -130,7 +130,7 @@ int MD::Server::clientConnected(void)
 	MD::Client client;
 
 	bool maxClientsReached = this->clients.size() >= MAX_CLIENTS;
-	
+
 	if (client.startListeningSocket(this->sSocket, maxClientsReached) < 0)
 		return -1;
 
@@ -160,7 +160,7 @@ int	MD::Server::closeClient(MD::Client& client)
 	/** Close client socket **/
 	if (close(client.getSocket()) == -1)
 		return this->reporter.error("Error closing client socket: " + std::to_string(client.getSocket()));
-	
+
 	this->reporter.log("Client socket (" + std::to_string(client.getSocket()) + ") closed", "LOG");
 	this->clients.erase(client.getSocket());
 

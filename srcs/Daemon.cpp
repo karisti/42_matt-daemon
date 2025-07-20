@@ -29,13 +29,13 @@ void MD::Daemon::daemonize()
 
 	this->createFork();
 
-	 // Create a new session
-        pid_t sid = setsid();
-        if (sid < 0)
-        {
-                this->reporter.error("Failed to create new session");
-                throw MD::Exception("Failed to create new session");
-        }
+	// Create a new session
+	pid_t sid = setsid();
+	if (sid < 0)
+	{
+		this->reporter.error("Failed to create new session");
+		exit(EXIT_FAILURE);
+	}
 
 	this->createFork();
 
