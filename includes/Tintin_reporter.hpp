@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <cstring>
+#include "MDException.hpp"
 
 
 namespace MD
@@ -17,7 +18,7 @@ namespace MD
 			~Tintin_reporter();
 			static Tintin_reporter& getInstance(const std::string &log_path, const std::string &reporter);
 			int log(const std::string &message, const std::string &level = "INFO");
-			int error(const std::string &message);
+                        int error(const std::string &message, bool raiseException = false);
 
 		private:
 			Tintin_reporter();
