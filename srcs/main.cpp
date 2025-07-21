@@ -17,14 +17,12 @@ int main() {
 		MD::Daemon daemon;
 		MD::Server server(SERVER_PORT);
 
-		if (server.create() < 0)
-			throw MD::Exception("Server creation failed");
-
+		server.create();
 		daemon.daemonize();
-
 		server.loop();
 		server.terminate();
-	} catch (const std::exception &e)
+	}
+	catch (const std::exception &e)
 	{
 		std::cerr << "Error: " << e.what() << std::endl;
 		return EXIT_FAILURE;

@@ -24,7 +24,7 @@ namespace MD
 		private:
 			Tintin_reporter();
 			Tintin_reporter(const std::string &log_path, const std::string &reporter);
-			// Prohibir copia y asignación
+			// Disallow copy and assignment
 			Tintin_reporter(const Tintin_reporter&) = delete;
 			Tintin_reporter& operator=(const Tintin_reporter&) = delete;
 
@@ -34,7 +34,7 @@ namespace MD
 
 		private:
 			static Tintin_reporter*		instance;
-		int								fd;
+			int							fd;
 			std::string					log_path;
 			std::string					reporter;
 	};

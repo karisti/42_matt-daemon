@@ -27,7 +27,6 @@ namespace MD
 			Tintin_reporter&	reporter = MD::Tintin_reporter::getInstance(LOG_PATH, LOG_REPORTER);
 
 		public:
-			/* -- Member functions -- */
 			int				getSocket(void) const;
 			int				startListeningSocket(int serverSocket, bool maxClientsReached);
 	};

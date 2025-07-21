@@ -35,12 +35,12 @@ MD::Server &MD::Server::operator=(const MD::Server &other)
 int				MD::Server::getSocket(void) const { return this->sSocket; }
 std::string		MD::Server::getPort(void) const { return std::string(this->port); }
 
-int MD::Server::create()
+void MD::Server::create()
 {
 	this->reporter.log("Creating server...");
 
 	if ((this->sSocket = socket(AF_INET, SOCK_STREAM, 0)) == -1)
-		return this->reporter.error("Error opening socket");
+		this->reporter.error("Error opening socket", true);
 
 	/** Bind the Socket to any free IP / Port **/
 	sockaddr_in hint;
@@ -50,35 +50,33 @@ int MD::Server::create()
 	int yes = 1;
 
 	if (setsockopt(this->sSocket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1)
-		return this->reporter.error("Error could not reuse address");
+		this->reporter.error("Error could not reuse address", true);
 
 	if (bind(this->sSocket, (struct sockaddr *)&hint, sizeof(hint)) < 0)
-		return this->reporter.error("Error binding socket");
+		this->reporter.error("Error binding socket", true);
 
 	/** Listen for new connections **/
 	if (listen(this->sSocket, SOMAXCONN) == -1)
-		return this->reporter.error("Error listen");
+		this->reporter.error("Error listen", true);
 
 	if (fcntl(this->sSocket, F_SETFL, O_NONBLOCK) < 0)
-		return this->reporter.error("Error making server socket non blocking");
+		this->reporter.error("Error making server socket non blocking", true);
 
 	// Initialize epoll instance
 	if ((this->epollFd = epoll_create1(0)) == -1)
-		return this->reporter.error("epoll_create1");
+		this->reporter.error("epoll_create1", true);
 
 	// Register the listening socket for read (incoming connections)
 	struct epoll_event ev;
 	ev.events = EPOLLIN;
 	ev.data.fd = this->sSocket;
 	if (epoll_ctl(this->epollFd, EPOLL_CTL_ADD, this->sSocket, &ev) == -1)
-		return this->reporter.error("epoll_ctl add server socket");
+		this->reporter.error("epoll_ctl add server socket", true);
 
 	this->reporter.log("Server created at port: " + std::string(this->port));
-
-	return 0;
 }
 
-int MD::Server::loop(void)
+void MD::Server::loop(void)
 {
 	int newEvents;
 	g_stopRequested = false;
@@ -97,7 +95,7 @@ int MD::Server::loop(void)
 									timeout_ms)) == -1)
 		{
 			if (!g_stopRequested)
-				return this->reporter.error("epoll_wait");
+				this->reporter.error("epoll_wait", true);
 		}
 
 		/** Kqueue events loop **/
@@ -122,7 +120,6 @@ int MD::Server::loop(void)
 			}
 		}
 	}
-	return 0;
 }
 
 int MD::Server::clientConnected(void)
