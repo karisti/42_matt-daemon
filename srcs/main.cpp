@@ -6,10 +6,7 @@ void initialChecks()
 {
 	// Check if the program is running as root
 	if (geteuid() != 0)
-	{
-		std::cerr << "This program must be run as root." << std::endl;
-		throw MD::Exception("Must be run as root");
-	}
+		throw MD::Exception("This program must be run as root.");
 }
 
 int main() {

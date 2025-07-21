@@ -39,7 +39,7 @@ int			MD::Client::startListeningSocket(int serverSocket, bool maxClientsReached)
 	/** Refuse connection if max clients reached **/
 	if (maxClientsReached)
 	{
-		std::string message = "Max clients reached. Try later.\n";
+		std::string message = "Connection refused. Max clients reached. Try later.\n";
 		send(this->socket, message.c_str(), message.size(), 0);
 		close(this->socket);
 		this->reporter.log("Incoming client (" + std::to_string(this->socket) + "). Max clients reached. Connection refused.", "LOG");
