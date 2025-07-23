@@ -70,9 +70,9 @@ void MD::Daemon::lock()
 
 	if (flock(fileno(this->lock_file), LOCK_EX | LOCK_NB) < 0)
 	{
-		// If we can't lock the file, it means another instance is running
 		if (errno == EWOULDBLOCK)
 		{
+			// If we can't lock the file, it means another instance is running
 			fclose(this->lock_file);
 			this->reporter.error("Daemon is already running. '" + std::string(lock_path) + "' locked.", true);
 		}
