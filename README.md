@@ -1,5 +1,5 @@
 # 42_matt-daemon
-[![Demo image]()]()
+[![Demo image](https://github.com/karisti/42_matt-daemon/blob/main/demo.gif)](https://github.com/karisti/42_matt-daemon/blob/main/demo.gif)
 
 ## Description
 Example server implemented in C++ that runs as a **daemon** in the background and handles TCP connections using `epoll`.
