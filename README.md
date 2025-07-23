@@ -1,6 +1,14 @@
 # 42_matt-daemon
 
+## Description
 Example server implemented in C++ that runs as a **daemon** in the background and handles TCP connections using `epoll`.
+
+## Lessons
+- Daemonization
+- Epoll loop
+- Signal handling
+- Logging system
+- Docker usage
 
 ## Prerequisites
 - Linux with `epoll` support
@@ -63,10 +71,3 @@ A process running in the background waiting for events. It is used for system ta
 
 ## Resources
 - [Introductory video about daemons](https://www.youtube.com/watch?v=65DarzNIFR0)
-
-## Lessons
-- Daemonization
-- Epoll loop
-- Signal handling
-- Logging system
-- Docker usage
