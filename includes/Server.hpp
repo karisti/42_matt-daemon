@@ -27,7 +27,7 @@ namespace MD
 	{
 		public:
 			typedef std::map<int, Client>		clients_map;
-		
+
 		private:
 			const char				*port;
 			int						sSocket;
@@ -35,7 +35,7 @@ namespace MD
 			struct epoll_event		eventList[EPOLL_MAX_EVENTS];
 			clients_map				clients;
 			Tintin_reporter&		reporter = MD::Tintin_reporter::getInstance(LOG_PATH, LOG_REPORTER);
-		
+
 		public:
 			Server();
 			Server(const char *port);
@@ -48,13 +48,12 @@ namespace MD
 			std::string		getPort(void) const;
 
 			/* -- Member functions -- */
-			int		create();
-			int		loop(void);
+			void	create();
+			void	loop(void);
 			void	terminate(void);
-			
+
 		private:
 			/* -- Member functions -- */
-			int		saveIp(void);
 			int		clientConnected(void);
 			void	clientDisconnected(int eventFd);
 			int		closeClient(Client& client);

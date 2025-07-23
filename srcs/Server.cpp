@@ -35,12 +35,12 @@ MD::Server &MD::Server::operator=(const MD::Server &other)
 int				MD::Server::getSocket(void) const { return this->sSocket; }
 std::string		MD::Server::getPort(void) const { return std::string(this->port); }
 
-int MD::Server::create()
+void MD::Server::create()
 {
 	this->reporter.log("Creating server...");
 
 	if ((this->sSocket = socket(AF_INET, SOCK_STREAM, 0)) == -1)
-		return this->reporter.error("Error opening socket");
+		this->reporter.error("Error opening socket", true);
 
 	/** Bind the Socket to any free IP / Port **/
 	sockaddr_in hint;
@@ -50,35 +50,33 @@ int MD::Server::create()
 	int yes = 1;
 
 	if (setsockopt(this->sSocket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1)
-		return this->reporter.error("Error could not reuse address");
+		this->reporter.error("Error could not reuse address", true);
 
 	if (bind(this->sSocket, (struct sockaddr *)&hint, sizeof(hint)) < 0)
-		return this->reporter.error("Error binding socket");
+		this->reporter.error("Error binding socket", true);
 
 	/** Listen for new connections **/
 	if (listen(this->sSocket, SOMAXCONN) == -1)
-		return this->reporter.error("Error listen");
+		this->reporter.error("Error listen", true);
 
 	if (fcntl(this->sSocket, F_SETFL, O_NONBLOCK) < 0)
-		return this->reporter.error("Error making server socket non blocking");
+		this->reporter.error("Error making server socket non blocking", true);
 
 	// Initialize epoll instance
 	if ((this->epollFd = epoll_create1(0)) == -1)
-		return this->reporter.error("epoll_create1");
+		this->reporter.error("epoll_create1", true);
 
 	// Register the listening socket for read (incoming connections)
 	struct epoll_event ev;
 	ev.events = EPOLLIN;
 	ev.data.fd = this->sSocket;
 	if (epoll_ctl(this->epollFd, EPOLL_CTL_ADD, this->sSocket, &ev) == -1)
-		return this->reporter.error("epoll_ctl add server socket");
+		this->reporter.error("epoll_ctl add server socket", true);
 
 	this->reporter.log("Server created at port: " + std::string(this->port));
-
-	return 0;
 }
 
-int MD::Server::loop(void)
+void MD::Server::loop(void)
 {
 	int newEvents;
 	g_stopRequested = false;
@@ -86,9 +84,9 @@ int MD::Server::loop(void)
 	/** SERVER LOOP **/
 	while (!g_stopRequested)
 	{
-                // epoll_wait timeout in milliseconds
-                // EPOLL_TIMEOUT is already expressed in ms so no conversion needed
-                int timeout_ms = EPOLL_TIMEOUT;
+		// epoll_wait timeout in milliseconds
+		// EPOLL_TIMEOUT is already expressed in ms so no conversion needed
+		int timeout_ms = EPOLL_TIMEOUT;
 
 		// Wait for events on epollFd, filling the same eventList array
 		if ((newEvents = epoll_wait(this->epollFd,
@@ -97,7 +95,7 @@ int MD::Server::loop(void)
 									timeout_ms)) == -1)
 		{
 			if (!g_stopRequested)
-				return this->reporter.error("epoll_wait");
+				this->reporter.error("epoll_wait", true);
 		}
 
 		/** Kqueue events loop **/
@@ -122,7 +120,6 @@ int MD::Server::loop(void)
 			}
 		}
 	}
-	return 0;
 }
 
 int MD::Server::clientConnected(void)
@@ -130,7 +127,7 @@ int MD::Server::clientConnected(void)
 	MD::Client client;
 
 	bool maxClientsReached = this->clients.size() >= MAX_CLIENTS;
-	
+
 	if (client.startListeningSocket(this->sSocket, maxClientsReached) < 0)
 		return -1;
 
@@ -160,7 +157,7 @@ int	MD::Server::closeClient(MD::Client& client)
 	/** Close client socket **/
 	if (close(client.getSocket()) == -1)
 		return this->reporter.error("Error closing client socket: " + std::to_string(client.getSocket()));
-	
+
 	this->reporter.log("Client socket (" + std::to_string(client.getSocket()) + ") closed", "LOG");
 	this->clients.erase(client.getSocket());
 
@@ -213,11 +210,17 @@ void MD::Server::terminate(void)
 {
 	/** Close client sockets **/
 	for (MD::Server::clients_map::iterator clientIt = this->clients.begin(); clientIt != this->clients.end(); ++clientIt)
-		this->closeClient(clientIt->second);
+	{
+		/** Close client socket **/
+		if (close(clientIt->second.getSocket()) < 0)
+			this->reporter.error("Error closing client socket: " + std::to_string(clientIt->second.getSocket()));
+		else
+			this->reporter.log("Client socket (" + std::to_string(clientIt->second.getSocket()) + ") closed", "LOG");
+	}
 
 	/** Close server socket **/
 	if (close(this->getSocket()) == -1)
 		this->reporter.error("Server close error");
-
-	this->reporter.log("Server (" + std::to_string(getSocket()) + ") closed.", "LOG");
+	else
+		this->reporter.log("Server (" + std::to_string(getSocket()) + ") closed.", "LOG");
 }

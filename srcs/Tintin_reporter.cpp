@@ -40,11 +40,11 @@ void MD::Tintin_reporter::openLogFile()
 				break;
 			case EACCES:
 				std::cerr << "Permission denied to open log file: " << this->log_path << std::endl;
-				exit(EXIT_FAILURE);
+				throw MD::Exception("Permission denied to open log file");
 				break;
 			default:
 				std::cerr << "Failed to open log file: " << this->log_path << std::endl;
-				exit(EXIT_FAILURE);
+				throw MD::Exception("Failed to open log file");
 				break;
 		}
 	}
@@ -57,14 +57,14 @@ int MD::Tintin_reporter::createLogFile() {
 	std::string subdirs = this->log_path.substr(0, this->log_path.find_last_of('/'));
 	if (mkdir(subdirs.c_str(), 0755) == -1 && errno != EEXIST) {
 		std::cerr << "Failed to create directory: " << subdirs << std::endl;
-		exit(EXIT_FAILURE);
+		throw MD::Exception("Failed to create directory");
 	}
 
 	// Create the log file
 	int fd = open(this->log_path.c_str(), O_WRONLY | O_CREAT | O_APPEND, 0644);
 	if (fd < 0) {
 		std::cerr << "Failed to create log file: " << this->log_path << std::endl;
-		exit(EXIT_FAILURE);
+		throw MD::Exception("Failed to create log file");
 	}
 
 	return fd;
@@ -78,9 +78,11 @@ int MD::Tintin_reporter::log(const std::string &message, const std::string &leve
 	return 0;
 }
 
-int MD::Tintin_reporter::error(const std::string &message)
+int MD::Tintin_reporter::error(const std::string &message, bool raiseException)
 {
 	this->log(message + ": " + std::strerror(errno), "ERROR");
+	if (raiseException)
+		throw MD::Exception(message);
 	return -1;
 }
 
@@ -89,7 +91,7 @@ std::string		MD::Tintin_reporter::getCurrentTimestamp()
 	time_t now = time(0);
 	struct tm* timeinfo = localtime(&now);
 	char buffer[80];
-	
+
 	strftime(buffer, 80, "%d/%m/%Y-%H:%M:%S", timeinfo);
 	return std::string(buffer);
 }

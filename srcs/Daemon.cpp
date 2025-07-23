@@ -29,13 +29,10 @@ void MD::Daemon::daemonize()
 
 	this->createFork();
 
-	 // Create a new session
+	// Create a new session
 	pid_t sid = setsid();
 	if (sid < 0)
-	{
-		this->reporter.error("Failed to create new session");
-		exit(EXIT_FAILURE);
-	}
+		this->reporter.error("Failed to create new session", true);
 
 	this->createFork();
 
@@ -54,10 +51,7 @@ void MD::Daemon::createFork()
 
 	child_pid = fork();
 	if (child_pid < 0) // Fork failed
-	{
-		this->reporter.error("Failed to fork process");
-		exit(EXIT_FAILURE);
-	}
+		this->reporter.error("Failed to fork process", true);
 	if (child_pid > 0) // Parent process
 		exit(EXIT_SUCCESS);
 
@@ -67,10 +61,7 @@ void MD::Daemon::createFork()
 void MD::Daemon::lock()
 {
 	if (chdir("/") < 0)
-	{
-		this->reporter.error("Failed to change directory to root");
-		exit(EXIT_FAILURE);
-	}
+		this->reporter.error("Failed to change directory to root", true);
 
 	const char *lock_path = LOCK_PATH;
 	this->lock_file = fopen(lock_path, "a");
@@ -79,18 +70,17 @@ void MD::Daemon::lock()
 
 	if (flock(fileno(this->lock_file), LOCK_EX | LOCK_NB) < 0)
 	{
-		// If we can't lock the file, it means another instance is running
-		if (errno == EWOULDBLOCK) {
-			std::cerr << "Another instance of the daemon is already running." << std::endl;
-			this->reporter.error("Daemon is already running. '" + std::string(lock_path) + "' locked.");
+		if (errno == EWOULDBLOCK)
+		{
+			// If we can't lock the file, it means another instance is running
+			fclose(this->lock_file);
+			this->reporter.error("Daemon is already running. '" + std::string(lock_path) + "' locked.", true);
 		}
-		else {
-			std::cerr << "Failed to lock file: '" << lock_path << "'" << std::endl;
-			this->reporter.error("Failed to lock file: '" + std::string(lock_path) + "'");
+		else
+		{
+			fclose(this->lock_file);
+			this->reporter.error("Failed to lock file: '" + std::string(lock_path) + "'", true);
 		}
-
-		fclose(this->lock_file);
-		exit(EXIT_FAILURE);
 	}
 }
 
@@ -101,9 +91,8 @@ void MD::Daemon::stop()
 	const char *lock_path = LOCK_PATH;
 	if (flock(fileno(lock_file), LOCK_UN) < 0)
 	{
-		this->reporter.error("Failed to unlock file: '" + std::string(lock_path) + "'");
 		fclose(lock_file);
-		exit(EXIT_FAILURE);
+		this->reporter.error("Failed to unlock file: '" + std::string(lock_path) + "'", true);
 	}
 	std::remove(lock_path);
 }

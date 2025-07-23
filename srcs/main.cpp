@@ -6,25 +6,27 @@ void initialChecks()
 {
 	// Check if the program is running as root
 	if (geteuid() != 0)
-	{
-		std::cerr << "This program must be run as root." << std::endl;
-		exit(EXIT_FAILURE);
-	}
+		throw MD::Exception("This program must be run as root.");
 }
 
 int main() {
+	try
+	{
+		initialChecks();
 
-	initialChecks();
+		MD::Daemon daemon;
+		MD::Server server(SERVER_PORT);
 
-	MD::Daemon daemon;
-	MD::Server server(SERVER_PORT);
-
-	server.create();
-
-	daemon.daemonize();
-
-	server.loop();
-	server.terminate();
+		server.create();
+		daemon.daemonize();
+		server.loop();
+		server.terminate();
+	}
+	catch (const std::exception &e)
+	{
+		std::cerr << "Error: " << e.what() << std::endl;
+		return EXIT_FAILURE;
+	}
 
 	return 0;
 }
