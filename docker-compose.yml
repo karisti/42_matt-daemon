@@ -10,4 +10,4 @@ services:
     ports:
       - "4243:4242"
     command: >
-      /bin/sh -c "apt update && apt install -y netcat-openbsd && tail -f /dev/null"
+      /bin/sh -c "apt update && apt install -y netcat-openbsd make clang && tail -f /dev/null"
