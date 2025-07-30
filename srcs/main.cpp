@@ -15,12 +15,18 @@ int main() {
 		initialChecks();
 
 		MD::Daemon daemon;
-		MD::Server server(SERVER_PORT);
-
-		server.create();
 		daemon.daemonize();
-		server.loop();
-		server.terminate();
+
+		while (g_stopRequested == 0)
+		{
+			MD::Server server(SERVER_PORT);
+			server.create();
+			server.loop();
+			server.terminate();
+
+			if (g_stopRequested == SIGHUP)
+				g_stopRequested = 0;
+		}
 	}
 	catch (const std::exception &e)
 	{

@@ -79,10 +79,10 @@ void MD::Server::create()
 void MD::Server::loop(void)
 {
 	int newEvents;
-	g_stopRequested = false;
+	g_stopRequested = 0;
 
 	/** SERVER LOOP **/
-	while (!g_stopRequested)
+	while (g_stopRequested == 0)
 	{
 		// epoll_wait timeout in milliseconds
 		// EPOLL_TIMEOUT is already expressed in ms so no conversion needed
@@ -94,7 +94,7 @@ void MD::Server::loop(void)
 									EPOLL_MAX_EVENTS, // max events to return
 									timeout_ms)) == -1)
 		{
-			if (!g_stopRequested)
+			if (g_stopRequested == 0)
 				this->reporter.error("epoll_wait", true);
 		}
 
@@ -197,7 +197,7 @@ int MD::Server::receiveMessage(int eventFd)
 	{
 		this->reporter.log("Request quit from client (" + std::to_string(client.getSocket()) + ").");
 		closeClient(client);
-		g_stopRequested = true;
+		g_stopRequested = SIGTERM;
 		return 0;
 	}
 

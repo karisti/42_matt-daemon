@@ -5,4 +5,4 @@
 #define LOG_REPORTER	"Matt_daemon"
 #define LOCK_PATH		"/var/lock/matt_daemon.lock"
 
-extern bool g_stopRequested;
+extern int g_stopRequested;

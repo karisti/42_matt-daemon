@@ -9,6 +9,7 @@
 #include <sys/types.h>
 #include <arpa/inet.h>
 #include <sys/epoll.h>
+#include <csignal>
 #include <netdb.h>
 #include <map>
 #include <algorithm>

@@ -97,15 +97,15 @@ void MD::Daemon::stop()
 	std::remove(lock_path);
 }
 
-bool g_stopRequested = false;
+int g_stopRequested = 0;
 void MD::Daemon::signalHandler(int signum)
 {
 	Tintin_reporter&		reporter = MD::Tintin_reporter::getInstance(LOG_PATH, LOG_REPORTER);
 	reporter.log("Signal received: " + std::to_string(signum));
 
-	if (signum == SIGINT || signum == SIGTERM || signum == SIGQUIT || signum == SIGTSTP)
+	if (signum == SIGINT || signum == SIGTERM || signum == SIGQUIT || signum == SIGTSTP || signum == SIGHUP)
 	{
-		g_stopRequested = true;
+		g_stopRequested = signum;
 	}
 	else
 	{
@@ -119,4 +119,5 @@ void MD::Daemon::configSignals()
 	signal(SIGTERM, signalHandler);
 	signal(SIGQUIT, signalHandler);
 	signal(SIGTSTP, signalHandler);
+	signal(SIGHUP, signalHandler);
 }
