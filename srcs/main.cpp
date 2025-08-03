@@ -10,11 +10,12 @@ void initialChecks()
 }
 
 int main() {
+	MD::Daemon daemon;
+
 	try
 	{
 		initialChecks();
 
-		MD::Daemon daemon;
 		daemon.daemonize();
 
 		while (g_stopRequested == 0)
@@ -25,7 +26,10 @@ int main() {
 			server.terminate();
 
 			if (g_stopRequested == SIGHUP)
+			{
 				g_stopRequested = 0;
+				daemon.restart();
+			}
 		}
 	}
 	catch (const std::exception &e)

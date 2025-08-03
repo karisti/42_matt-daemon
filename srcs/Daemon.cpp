@@ -1,16 +1,14 @@
 #include "../includes/Daemon.hpp"
 
 
-MD::Daemon::Daemon()
-{
-	this->lock();
-}
+MD::Daemon::Daemon(){}
 
 MD::Daemon::Daemon(const MD::Daemon& other) { *this = other; }
 
 MD::Daemon::~Daemon()
 {
-	this->stop();
+	if (this->isRunning)
+		this->stop();
 }
 
 MD::Daemon& MD::Daemon::operator=(const MD::Daemon &other)
@@ -18,13 +16,13 @@ MD::Daemon& MD::Daemon::operator=(const MD::Daemon &other)
 	if (this != &other)
 	{
 		this->lock_file = other.lock_file;
-		this->creationTimestamp = other.creationTimestamp;
 	}
 	return *this;
 }
 
 void MD::Daemon::daemonize()
 {
+	this->lock();
 	umask(0);
 
 	this->createFork();
@@ -41,6 +39,7 @@ void MD::Daemon::daemonize()
 	fflush(this->lock_file);
 
 	this->reporter.log("Daemon started with PID: " + std::to_string(getpid()) + ".");
+	this->isRunning = true;
 
 	this->configSignals();
 }
@@ -95,6 +94,24 @@ void MD::Daemon::stop()
 		this->reporter.error("Failed to unlock file: '" + std::string(lock_path) + "'", true);
 	}
 	std::remove(lock_path);
+}
+
+void MD::Daemon::restart()
+{
+	// Fork a new process, where the new child process execs itself and the parent process exits normally.
+
+	pid_t child_pid = fork();
+	if (child_pid < 0) // Fork failed
+		this->reporter.error("Failed to fork process for restart", true);
+	if (child_pid > 0) // Parent process
+	{
+		this->reporter.log("Daemon restarting.");
+		this->stop();
+		exit(EXIT_SUCCESS);
+	}
+
+	// Child process
+	this->daemonize();
 }
 
 int g_stopRequested = 0;
