@@ -25,7 +25,7 @@ int main() {
 			server.loop();
 			server.terminate();
 
-			if (g_stopRequested == SIGHUP)
+			if (g_stopRequested == SIGHUP) // Restart signal received
 			{
 				daemon.restart();
 				g_stopRequested = 0;
