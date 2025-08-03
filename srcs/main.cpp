@@ -2,7 +2,7 @@
 #include "../includes/Daemon.hpp"
 
 
-void initialChecks()
+void checkIsRunningAsRoot()
 {
 	// Check if the program is running as root
 	if (geteuid() != 0)
@@ -14,7 +14,7 @@ int main() {
 
 	try
 	{
-		initialChecks();
+		checkIsRunningAsRoot();
 
 		daemon.daemonize();
 
@@ -27,8 +27,8 @@ int main() {
 
 			if (g_stopRequested == SIGHUP)
 			{
-				g_stopRequested = 0;
 				daemon.restart();
+				g_stopRequested = 0;
 			}
 		}
 	}

@@ -98,8 +98,6 @@ void MD::Daemon::stop()
 
 void MD::Daemon::restart()
 {
-	// Fork a new process, where the new child process execs itself and the parent process exits normally.
-
 	pid_t child_pid = fork();
 	if (child_pid < 0) // Fork failed
 		this->reporter.error("Failed to fork process for restart", true);
@@ -120,7 +118,7 @@ void MD::Daemon::signalHandler(int signum)
 	Tintin_reporter&		reporter = MD::Tintin_reporter::getInstance(LOG_PATH, LOG_REPORTER);
 	reporter.log("Signal received: " + std::to_string(signum));
 
-	if (signum == SIGINT || signum == SIGTERM || signum == SIGQUIT || signum == SIGTSTP || signum == SIGHUP)
+	if (signum == SIGHUP || signum == SIGINT || signum == SIGQUIT || signum == SIGTERM || signum == SIGTSTP || signum == SIGCONT)
 	{
 		g_stopRequested = signum;
 	}
@@ -132,9 +130,10 @@ void MD::Daemon::signalHandler(int signum)
 
 void MD::Daemon::configSignals()
 {
-	signal(SIGINT, signalHandler);
-	signal(SIGTERM, signalHandler);
-	signal(SIGQUIT, signalHandler);
-	signal(SIGTSTP, signalHandler);
 	signal(SIGHUP, signalHandler);
+	signal(SIGINT, signalHandler);
+	signal(SIGQUIT, signalHandler);
+	signal(SIGTERM, signalHandler);
+	signal(SIGTSTP, signalHandler);
+	signal(SIGCONT, signalHandler);
 }
