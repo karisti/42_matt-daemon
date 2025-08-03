@@ -62,39 +62,39 @@ A process running in the background waiting for events. It is used for system ta
 
 ### Useful signals
 
-| Command        | Signal                              | Number | Description                                                            | Implemented |
-| -------------- | ----------------------------------- | ------ | ---------------------------------------------------------------------- | ----------- |
-| `kill -1`      | `SIGHUP` (Hangup)                   | 1      | Terminal closed; often used to reload config or restart daemons        | Yes         |
-| `kill -2`      | `SIGINT` (Interrupt)                | 2      | Sent by `Ctrl+C`; interrupts and gracefully terminates the process     | Yes         |
-| `kill -3`      | `SIGQUIT` (Quit)                    | 3      | Like `SIGINT` but also creates a core dump for debugging               | Yes         |
-| `kill -4`      | `SIGILL` (Illegal Instruction)      | 4      | Illegal instruction executed; indicates a serious execution problem    | No          |
-| `kill -5`      | `SIGTRAP` (Trap)                    | 5      | Used by debuggers for breakpoints and tracing                          | No          |
-| `kill -6`      | `SIGABRT` (Abort)                   | 6      | Sent by `abort()` on critical error; requests program termination      | No          |
-| `kill -7`      | `SIGBUS` (Bus Error)                | 7      | Faulty memory access (misaligned address); hardware or programming bug | No          |
-| `kill -8`      | `SIGFPE` (Floating Point Exception) | 8      | Illegal floating-point operation (e.g., division by zero)              | No          |
-| `kill -9`      | `SIGKILL` (Kill)                    | 9      | Forcefully and immediately kills the process                           | No          |
-| `kill -10`     | `SIGUSR1` (User-defined Signal 1)   | 10     | User-defined signal 1; customizable for application needs              | No          |
-| `kill -11`     | `SIGSEGV` (Segmentation Fault)      | 11     | Invalid memory access (segmentation fault); serious programming error  | No          |
-| `kill -12`     | `SIGUSR2` (User-defined Signal 2)   | 12     | User-defined signal 2; customizable for application needs              | No          |
-| `kill -13`     | `SIGPIPE` (Pipe Error)              | 13     | Write to a pipe with no readers; indicates a broken pipe               | No          |
-| `kill -14`     | `SIGALRM` (Alarm)                   | 14     | Timer set by `alarm()` expired; used for timeouts and periodic tasks   | No          |
-| `kill -15`     | `SIGTERM` (Termination)             | 15     | Requests graceful process termination (cleanup allowed)                | Yes         |
-| `kill -16`     | `SIGSTKFLT` (Stack Fault)           | 16     | Stack fault (overflow/underflow); indicates stack-related bug          | No          |
-| `kill -17`     | `SIGCHLD` (Child Process Status)    | 17     | Child process status changed; informs parent of child events           | No          |
-| `kill -18`     | `SIGCONT` (Continue)                | 18     | Resumes a stopped process                                              | Yes         |
-| `kill -19`     | `SIGSTOP` (Stop)                    | 19     | Stops (pauses) a process; cannot be caught or ignored                  | No          |
-| `kill -20`     | `SIGTSTP` (Terminal Stop)           | 20     | Sent by `Ctrl+Z`; suspends process, can be resumed                     | Yes         |
-| `kill -21`     | `SIGTTIN` (Background Read)         | 21     | Background process tried to read from terminal                         | No          |
-| `kill -22`     | `SIGTTOU` (Background Write)        | 22     | Background process tried to write to terminal                          | No          |
-| `kill -23`     | `SIGURG` (Urgent Data)              | 23     | Urgent data available on socket                                        | No          |
-| `kill -24`     | `SIGXCPU` (CPU Time Limit Exceeded) | 24     | CPU time limit exceeded                                                | No          |
-| `kill -25`     | `SIGXFSZ` (File Size Limit Exceeded)| 25     | File size limit exceeded                                               | No          |
-| `kill -26`     | `SIGVTALRM` (Virtual Timer Expired) | 26     | Virtual timer expired (set by `setitimer()`)                           | No          |
-| `kill -27`     | `SIGPROF` (Profiling Timer Expired) | 27     | Profiling timer expired (set by `setitimer()`)                         | No          |
-| `kill -28`     | `SIGWINCH` (Window Size Change)     | 28     | Terminal window size changed                                           | No          |
-| `kill -29`     | `SIGIO` (I/O is Possible)           | 29     | Asynchronous I/O event occurred                                        | No          |
-| `kill -30`     | `SIGPWR` (Power Failure)            | 30     | Power failure or critical power event                                  | No          |
-| `kill -31`     | `SIGSYS` (Bad System Call)          | 31     | Bad system call (not implemented)                                      | No          |
+| Signal                              | Number | Description                                                            | Command        | Implemented |
+| ----------------------------------- | ------ | ---------------------------------------------------------------------- | -------------- | ----------- |
+| `SIGHUP` (Hangup)                   | 1      | Terminal closed; often used to reload config or restart daemons        | `kill -1`      | ✔️         |
+| `SIGINT` (Interrupt)                | 2      | Sent by `Ctrl+C`; interrupts and gracefully terminates the process     | `kill -2`      | ✔️         |
+| `SIGQUIT` (Quit)                    | 3      | Like `SIGINT` but also creates a core dump for debugging               | `kill -3`      | ✔️         |
+| `SIGILL` (Illegal Instruction)      | 4      | Illegal instruction executed; indicates a serious execution problem    | `kill -4`      | ❌         |
+| `SIGTRAP` (Trap)                    | 5      | Used by debuggers for breakpoints and tracing                          | `kill -5`      | ❌         |
+| `SIGABRT` (Abort)                   | 6      | Sent by `abort()` on critical error; requests program termination      | `kill -6`      | ❌         |
+| `SIGBUS` (Bus Error)                | 7      | Faulty memory access (misaligned address); hardware or programming bug | `kill -7`      | ❌         |
+| `SIGFPE` (Floating Point Exception) | 8      | Illegal floating-point operation (e.g., division by zero)              | `kill -8`      | ❌         |
+| `SIGKILL` (Kill)                    | 9      | Forcefully and immediately kills the process                           | `kill -9`      | ❌         |
+| `SIGUSR1` (User-defined Signal 1)   | 10     | User-defined signal 1; customizable for application needs              | `kill -10`     | ❌         |
+| `SIGSEGV` (Segmentation Fault)      | 11     | Invalid memory access (segmentation fault); serious programming error  | `kill -11`     | ❌         |
+| `SIGUSR2` (User-defined Signal 2)   | 12     | User-defined signal 2; customizable for application needs              | `kill -12`     | ❌         |
+| `SIGPIPE` (Pipe Error)              | 13     | Write to a pipe with no readers; indicates a broken pipe               | `kill -13`     | ❌         |
+| `SIGALRM` (Alarm)                   | 14     | Timer set by `alarm()` expired; used for timeouts and periodic tasks   | `kill -14`     | ❌         |
+| `SIGTERM` (Termination)             | 15     | Requests graceful process termination (cleanup allowed)                | `kill -15`     | ✔️         |
+| `SIGSTKFLT` (Stack Fault)           | 16     | Stack fault (overflow/underflow); indicates stack-related bug          | `kill -16`     | ❌         |
+| `SIGCHLD` (Child Process Status)    | 17     | Child process status changed; informs parent of child events           | `kill -17`     | ❌         |
+| `SIGCONT` (Continue)                | 18     | Resumes a stopped process                                              | `kill -18`     | ✔️         |
+| `SIGSTOP` (Stop)                    | 19     | Stops (pauses) a process; cannot be caught or ignored                  | `kill -19`     | ❌         |
+| `SIGTSTP` (Terminal Stop)           | 20     | Sent by `Ctrl+Z`; suspends process, can be resumed                     | `kill -20`     | ✔️         |
+| `SIGTTIN` (Background Read)         | 21     | Background process tried to read from terminal                         | `kill -21`     | ❌         |
+| `SIGTTOU` (Background Write)        | 22     | Background process tried to write to terminal                          | `kill -22`     | ❌         |
+| `SIGURG` (Urgent Data)              | 23     | Urgent data available on socket                                        | `kill -23`     | ❌         |
+| `SIGXCPU` (CPU Time Limit Exceeded) | 24     | CPU time limit exceeded                                                | `kill -24`     | ❌         |
+| `SIGXFSZ` (File Size Limit Exceeded)| 25     | File size limit exceeded                                               | `kill -25`     | ❌         |
+| `SIGVTALRM` (Virtual Timer Expired) | 26     | Virtual timer expired (set by `setitimer()`)                           | `kill -26`     | ❌         |
+| `SIGPROF` (Profiling Timer Expired) | 27     | Profiling timer expired (set by `setitimer()`)                         | `kill -27`     | ❌         |
+| `SIGWINCH` (Window Size Change)     | 28     | Terminal window size changed                                           | `kill -28`     | ❌         |
+| `SIGIO` (I/O is Possible)           | 29     | Asynchronous I/O event occurred                                        | `kill -29`     | ❌         |
+| `SIGPWR` (Power Failure)            | 30     | Power failure or critical power event                                  | `kill -30`     | ❌         |
+| `SIGSYS` (Bad System Call)          | 31     | Bad system call (not implemented)                                      | `kill -31`     | ❌         |
 
 
 ## Resources
