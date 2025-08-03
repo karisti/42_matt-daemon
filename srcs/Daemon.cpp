@@ -118,13 +118,27 @@ void MD::Daemon::signalHandler(int signum)
 	Tintin_reporter&		reporter = MD::Tintin_reporter::getInstance(LOG_PATH, LOG_REPORTER);
 	reporter.log("Signal received: " + std::to_string(signum));
 
-	if (signum == SIGHUP || signum == SIGINT || signum == SIGQUIT || signum == SIGTERM || signum == SIGTSTP || signum == SIGCONT)
+	if (signum == SIGHUP || signum == SIGINT || signum == SIGQUIT || signum == SIGTERM)
 	{
 		g_stopRequested = signum;
 	}
+	else if (signum == SIGTSTP)
+	{
+		// SIGTSTP (Ctrl+Z) - Terminal Stop Signal
+		// For a daemon, we log the signal but don't actually stop the process
+		// as daemons should continue running in the background
+		reporter.log("SIGTSTP received - Terminal stop signal ignored (daemon continues running)");
+	}
+	else if (signum == SIGCONT)
+	{
+		// SIGCONT - Continue Signal
+		// This signal continues a stopped process
+		// For a daemon, we just log that we received it and continue normal operation
+		reporter.log("SIGCONT received - Continue signal processed (daemon continues normal operation)");
+	}
 	else
 	{
-		reporter.error("Unknown signal received: " + std::to_string(signum));
+		reporter.error("Signal " + std::to_string(signum) + " received but not handled.");
 	}
 }
 
