@@ -24,8 +24,8 @@ namespace MD
 	class Daemon
 	{
 		private:
+			bool				isRunning = false;
 			FILE				*lock_file = nullptr;
-			std::string			creationTimestamp;
 			Tintin_reporter&	reporter = MD::Tintin_reporter::getInstance(LOG_PATH, LOG_REPORTER);
 
 		public:
@@ -35,11 +35,12 @@ namespace MD
 			Daemon &operator=(const Daemon &other);
 
 			void daemonize();
+			void stop();
+			void restart();
 
 		private:
 			void createFork();
 			void lock();
-			void stop();
 			void configSignals();
 			static void signalHandler(int signum);
 	};

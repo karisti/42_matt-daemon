@@ -1,16 +1,14 @@
 #include "../includes/Daemon.hpp"
 
 
-MD::Daemon::Daemon()
-{
-	this->lock();
-}
+MD::Daemon::Daemon(){}
 
 MD::Daemon::Daemon(const MD::Daemon& other) { *this = other; }
 
 MD::Daemon::~Daemon()
 {
-	this->stop();
+	if (this->isRunning)
+		this->stop();
 }
 
 MD::Daemon& MD::Daemon::operator=(const MD::Daemon &other)
@@ -18,13 +16,13 @@ MD::Daemon& MD::Daemon::operator=(const MD::Daemon &other)
 	if (this != &other)
 	{
 		this->lock_file = other.lock_file;
-		this->creationTimestamp = other.creationTimestamp;
 	}
 	return *this;
 }
 
 void MD::Daemon::daemonize()
 {
+	this->lock();
 	umask(0);
 
 	this->createFork();
@@ -41,6 +39,7 @@ void MD::Daemon::daemonize()
 	fflush(this->lock_file);
 
 	this->reporter.log("Daemon started with PID: " + std::to_string(getpid()) + ".");
+	this->isRunning = true;
 
 	this->configSignals();
 }
@@ -97,27 +96,58 @@ void MD::Daemon::stop()
 	std::remove(lock_path);
 }
 
+void MD::Daemon::restart()
+{
+	pid_t child_pid = fork();
+	if (child_pid < 0) // Fork failed
+		this->reporter.error("Failed to fork process for restart", true);
+	if (child_pid > 0) // Parent process
+	{
+		this->reporter.log("Daemon restarting.");
+		this->stop();
+		exit(EXIT_SUCCESS);
+	}
+
+	// Child process
+	this->daemonize();
+}
+
 int g_stopRequested = 0;
 void MD::Daemon::signalHandler(int signum)
 {
 	Tintin_reporter&		reporter = MD::Tintin_reporter::getInstance(LOG_PATH, LOG_REPORTER);
 	reporter.log("Signal received: " + std::to_string(signum));
 
-	if (signum == SIGINT || signum == SIGTERM || signum == SIGQUIT || signum == SIGTSTP || signum == SIGHUP)
+	if (signum == SIGHUP || signum == SIGINT || signum == SIGQUIT || signum == SIGTERM)
 	{
 		g_stopRequested = signum;
 	}
+	else if (signum == SIGTSTP)
+	{
+		// SIGTSTP (Ctrl+Z) - Terminal Stop Signal
+		// For a daemon, we log the signal but don't actually stop the process
+		// as daemons should continue running in the background
+		reporter.log("SIGTSTP received - Terminal stop signal ignored (daemon continues running)");
+	}
+	else if (signum == SIGCONT)
+	{
+		// SIGCONT - Continue Signal
+		// This signal continues a stopped process
+		// For a daemon, we just log that we received it and continue normal operation
+		reporter.log("SIGCONT received - Continue signal processed (daemon continues normal operation)");
+	}
 	else
 	{
-		reporter.error("Unknown signal received: " + std::to_string(signum));
+		reporter.error("Signal " + std::to_string(signum) + " received but not handled.");
 	}
 }
 
 void MD::Daemon::configSignals()
 {
-	signal(SIGINT, signalHandler);
-	signal(SIGTERM, signalHandler);
-	signal(SIGQUIT, signalHandler);
-	signal(SIGTSTP, signalHandler);
 	signal(SIGHUP, signalHandler);
+	signal(SIGINT, signalHandler);
+	signal(SIGQUIT, signalHandler);
+	signal(SIGTERM, signalHandler);
+	signal(SIGTSTP, signalHandler);
+	signal(SIGCONT, signalHandler);
 }

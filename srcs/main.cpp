@@ -2,7 +2,7 @@
 #include "../includes/Daemon.hpp"
 
 
-void initialChecks()
+void checkIsRunningAsRoot()
 {
 	// Check if the program is running as root
 	if (geteuid() != 0)
@@ -10,11 +10,12 @@ void initialChecks()
 }
 
 int main() {
+	MD::Daemon daemon;
+
 	try
 	{
-		initialChecks();
+		checkIsRunningAsRoot();
 
-		MD::Daemon daemon;
 		daemon.daemonize();
 
 		while (g_stopRequested == 0)
@@ -24,8 +25,12 @@ int main() {
 			server.loop();
 			server.terminate();
 
+			// Restart signal received
 			if (g_stopRequested == SIGHUP)
+			{
+				daemon.restart();
 				g_stopRequested = 0;
+			}
 		}
 	}
 	catch (const std::exception &e)
