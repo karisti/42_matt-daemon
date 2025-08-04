@@ -94,7 +94,7 @@ void MD::Server::loop(void)
 									EPOLL_MAX_EVENTS, // max events to return
 									timeout_ms)) == -1)
 		{
-			if (g_stopRequested == 0)
+			if (g_stopRequested == 0 && errno != EINTR)
 				this->reporter.error("epoll_wait", true);
 		}
 
